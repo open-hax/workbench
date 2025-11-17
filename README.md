@@ -1,6 +1,6 @@
-# @promethean-os/opencode-unified
+# Electron Workbench
 
-Unified OpenCode client combining TypeScript server, ClojureScript editor, and Electron integration.
+Electron-based workbench combining TypeScript services, ClojureScript editor, and automation integration.
 
 ## Overview
 
