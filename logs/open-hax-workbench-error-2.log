@@ -1,3 +1,0 @@
-2026-02-06T12:06:30: shadow-cljs - config: /home/err/devel/orgs/open-hax/workbench/shadow-cljs.edn
-2026-02-06T12:06:30: WARNING: The org.clojure/core.async dependency in shadow-cljs.edn was ignored. Default version is used and override is not allowed to ensure compatibility.
-2026-02-06T12:06:30: The versions provided by shadow-cljs can be found here: https://clojars.org/thheller/shadow-cljs/versions/2.28.23
