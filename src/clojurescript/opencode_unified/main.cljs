@@ -1,8 +1,8 @@
 (ns opencode-unified.main
   "Main application entry point"
   (:require [opencode-unified.ui :as ui]
-            [opencode-unified.state :as state]
             [opencode-unified.keymap :as keymap]
+            [opencode-unified.command-palette :as command-palette]
             [opencode-unified.evil :as evil]
             [opencode-unified.opencode :as opencode]
             [opencode-unified.plugins :as plugins]
@@ -17,6 +17,9 @@
 
   ;; Initialize keymap
   (keymap/init)
+
+  ;; Initialize command palette registry
+  (command-palette/init!)
 
   ;; Initialize Evil mode
   (evil/init)
@@ -55,6 +58,12 @@
   ;; Web-specific setup
   (when (env/web?)
     (println "Running in web mode - some Electron features will be unavailable"))
+
+  ;; Expose app state for testing
+  (set! (.-opencodeApp js/window)
+        #js {:initialized true
+             :plugins #js {}
+             :opencode #js {:connected false}})
 
   (println "Opencode started successfully!"))
 

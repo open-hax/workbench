@@ -200,4 +200,40 @@ test.describe('Command Palette Integration', () => {
     const categories = await page.locator('[data-testid="command-category"]').count();
     expect(categories).toBeGreaterThan(0);
   });
+
+  test('task4: ctrl/cmd+p action rail executes with feedback and destructive confirmation', async ({
+    page,
+  }) => {
+    const modifier = process.platform === 'darwin' ? 'Meta' : 'Control';
+
+    await page.keyboard.press(`${modifier}+K`);
+    await expect(page.locator('[data-testid="search-surface"]')).toBeVisible();
+    await expect(page.locator('[data-testid="command-palette"]')).not.toBeVisible();
+    await page.keyboard.press('Escape');
+
+    await page.keyboard.press(`${modifier}+P`);
+    await expect(page.locator('[data-testid="command-palette"]')).toBeVisible();
+    await expect(page.locator('[data-testid="command-palette-input"]')).toBeFocused();
+
+    await page.fill('[data-testid="command-palette-input"]', 'toggle theme');
+    await page.keyboard.press('Enter');
+
+    const feedback = page.locator('[data-testid="command-feedback"]');
+    await expect(feedback).toBeVisible();
+    await expect(feedback).toHaveAttribute('data-status', 'success');
+
+    await page.fill('[data-testid="command-palette-input"]', 'reset workspace');
+    await page.keyboard.press('Enter');
+
+    await expect(page.locator('[data-testid="destructive-confirmation"]')).toBeVisible();
+    await page.click('[data-testid="destructive-cancel"]');
+    await expect(page.locator('[data-testid="destructive-confirmation"]')).not.toBeVisible();
+
+    await page.fill('[data-testid="command-palette-input"]', 'reset workspace');
+    await page.keyboard.press('Enter');
+    await expect(page.locator('[data-testid="destructive-confirmation"]')).toBeVisible();
+    await page.click('[data-testid="destructive-confirm"]');
+    await expect(feedback).toContainText('Workspace reset');
+    await expect(feedback).toHaveAttribute('data-command-id', 'workspace.reset');
+  });
 });

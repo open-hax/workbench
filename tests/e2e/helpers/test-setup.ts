@@ -56,7 +56,9 @@ export const test = base.extend<OpencodeFixtures>({
     await page.waitForSelector('#app', { timeout: 15000 });
     await page.waitForFunction(
       () => {
-        return window.opencodeApp && window.opencodeApp.initialized;
+        const hasLegacyGlobal = Boolean(window.opencodeApp && window.opencodeApp.initialized);
+        const hasWorkbenchShell = Boolean(document.querySelector('.shell'));
+        return hasLegacyGlobal || hasWorkbenchShell;
       },
       { timeout: 10000 },
     );
@@ -111,12 +113,12 @@ export const test = base.extend<OpencodeFixtures>({
         });
       },
 
-      // Open command palette (Cmd+Shift+P or Ctrl+Shift+P)
+      // Open command palette (Cmd+P or Ctrl+P)
       async openCommandPalette() {
         const isMac = process.platform === 'darwin';
         const modifier = isMac ? 'Meta' : 'Control';
 
-        await page.keyboard.press(`${modifier}+Shift+P`);
+        await page.keyboard.press(`${modifier}+P`);
         await page.waitForSelector('[data-testid="command-palette"]', {
           state: 'visible',
           timeout: 5000,

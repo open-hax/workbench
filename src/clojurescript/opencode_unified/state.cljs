@@ -1,6 +1,6 @@
 (ns opencode-unified.state
   (:require [reagent.core :as r]
-            [clojure.string :as str]
+            [goog.object :as gobj]
             [opencode-unified.env :as env]))
 
 ;; Global app state - simplified for debugging
@@ -12,8 +12,35 @@
                         :last-search ""
                         :search-direction :forward
                         :count 1}
-           :statusbar {:left "NORMAL" :center "" :right "Evil Mode - normal"}
-           :ui {:theme :dark}}))
+            :statusbar {:left "NORMAL" :center "" :right "Evil Mode - normal"}
+            :ui {:theme :dark
+                 :search-surface {:visible? false
+                                  :query ""
+                                  :active-tab :sessions
+                                  :filter :all
+                                  :view :list
+                                  :page 1
+                                  :page-size 2} ;; :all, :errors, :info
+                 :inspector {:selection nil
+                             :context []
+                             :context-source []
+                             :pane-error nil
+                             :pinned []
+                             :active-pinned-key nil}
+                 :activity-items [{:id 1 :type :error :title "Failed to connect to server" :time "2 mins ago" :timestamp 1700000120000}
+                                   {:id 2 :type :info :title "Project initialized" :time "1 hour ago" :timestamp 1700000000000}
+                                   {:id 3 :type :info :title "Dependencies installed" :time "2 hours ago" :timestamp 1699990000000}
+                                   {:id 4 :type :error :title "Compilation failed" :time "5 mins ago" :timestamp 1700000100000}]}}))
+
+(defn- inspector-context-failure?
+  "Returns true when test flags request a simulated inspector context failure."
+  []
+  (let [flags (gobj/get js/window "__OPENCODE_TEST_FLAGS__")
+        persistent-failure? (and flags (true? (gobj/get flags "failInspectorContext")))
+        one-shot-failure? (and flags (true? (gobj/get flags "failInspectorContextOnce")))]
+    (when one-shot-failure?
+      (gobj/set flags "failInspectorContextOnce" false))
+    (or persistent-failure? one-shot-failure?)))
 
 ;; Buffer structure
 (defn create-buffer
@@ -107,6 +134,158 @@
   []
   (get-in @app-state [:ui :command-palette]))
 
+;; Search Surface operations
+(defn toggle-search-surface!
+  "Toggle search surface visibility"
+  []
+  (swap! app-state update-in [:ui :search-surface :visible?] not))
+
+(defn focus-search-input!
+  "Focus the search input after the surface becomes visible."
+  []
+  (letfn [(focus-with-retry! [remaining]
+            ;; Target the input inside the search surface modal specifically
+            (when-let [input (.querySelector js/document "[data-testid='search-surface'] [data-testid='search-input']")]
+              (.focus input)
+              (when (and (pos? remaining)
+                         (not= input (.-activeElement js/document)))
+                (js/setTimeout #(focus-with-retry! (dec remaining)) 16))))]
+    (js/setTimeout #(focus-with-retry! 6) 0)))
+
+(defn open-search-surface!
+  "Open search surface and focus input."
+  []
+  (swap! app-state assoc-in [:ui :search-surface :visible?] true)
+  (focus-search-input!))
+
+(defn set-search-query!
+  "Set search surface query"
+  [query]
+  (swap! app-state assoc-in [:ui :search-surface :query] query)
+  (swap! app-state assoc-in [:ui :search-surface :page] 1))
+
+(defn set-search-tab!
+  "Set search surface active tab"
+  [tab]
+  (swap! app-state assoc-in [:ui :search-surface :active-tab] tab)
+  (swap! app-state assoc-in [:ui :search-surface :page] 1)
+  (swap! app-state assoc-in [:ui :inspector :selection] nil)
+  (swap! app-state assoc-in [:ui :inspector :context] []))
+
+(defn set-search-filter!
+  "Set search surface filter"
+  [filter-type]
+  (swap! app-state assoc-in [:ui :search-surface :filter] filter-type)
+  (swap! app-state assoc-in [:ui :search-surface :page] 1))
+
+(defn set-search-view!
+  "Set search result view mode"
+  [view-mode]
+  (swap! app-state assoc-in [:ui :search-surface :view] view-mode))
+
+(defn set-search-page!
+  "Set current search result page"
+  [page]
+  (swap! app-state assoc-in [:ui :search-surface :page] (max 1 page)))
+
+(defn set-search-page-size!
+  "Set search result page size"
+  [page-size]
+  (swap! app-state assoc-in [:ui :search-surface :page-size] (max 1 page-size))
+  (swap! app-state assoc-in [:ui :search-surface :page] 1))
+
+(defn set-inspector-selection!
+  "Select an item and project context into inspector pane."
+  [item context-items]
+  (swap! app-state assoc-in [:ui :inspector :selection] item)
+  (swap! app-state assoc-in [:ui :inspector :context-source] context-items)
+  (if (inspector-context-failure?)
+    (do
+      (swap! app-state assoc-in [:ui :inspector :context] [])
+      (swap! app-state assoc-in [:ui :inspector :pane-error]
+             {:message "Inspector context API failed. You can continue and retry context load."}))
+    (do
+      (swap! app-state assoc-in [:ui :inspector :context] context-items)
+      (swap! app-state assoc-in [:ui :inspector :pane-error] nil)))
+  (swap! app-state assoc-in [:ui :inspector :active-pinned-key] nil))
+
+(defn retry-inspector-context!
+  "Retry loading inspector context after a recoverable pane error."
+  []
+  (let [{:keys [selection context-source]} (get-in @app-state [:ui :inspector])]
+    (when selection
+      (if (inspector-context-failure?)
+        (swap! app-state assoc-in [:ui :inspector :pane-error]
+               {:message "Inspector context API still unavailable. Retry when service recovers."})
+        (do
+          (swap! app-state assoc-in [:ui :inspector :context] (or context-source []))
+          (swap! app-state assoc-in [:ui :inspector :pane-error] nil))))))
+
+(defn inspector-entity-key
+  "Stable key for inspector entities across tabs/views."
+  [item]
+  (let [entity-type (or (:type item) :item)
+        entity-id (or (:id item) (:title item) "unknown")]
+    (str (name entity-type) "::" entity-id)))
+
+(defn pin-selected-inspector-entity!
+  "Pin the current inspector selection into persistent compare set."
+  []
+  (let [{:keys [selection context]} (get-in @app-state [:ui :inspector])]
+    (when selection
+      (let [entity-key (inspector-entity-key selection)
+            pinned-entry {:key entity-key
+                          :selection selection
+                          :context context}]
+        (swap! app-state update-in [:ui :inspector :pinned]
+               (fn [pinned]
+                 (let [safe-pinned (or pinned [])]
+                   (if (some #(= (:key %) entity-key) safe-pinned)
+                     (mapv (fn [entry]
+                             (if (= (:key entry) entity-key)
+                               pinned-entry
+                               entry))
+                           safe-pinned)
+                     (conj safe-pinned pinned-entry)))))
+        (swap! app-state assoc-in [:ui :inspector :active-pinned-key] entity-key)))))
+
+(defn unpin-inspector-entity!
+  "Remove a pinned entity from compare set."
+  [entity-key]
+  (swap! app-state update-in [:ui :inspector :pinned]
+         (fn [pinned]
+           (vec (remove #(= (:key %) entity-key) (or pinned [])))))
+  (let [inspector-state (get-in @app-state [:ui :inspector])
+        active-key (:active-pinned-key inspector-state)
+        pinned (:pinned inspector-state)]
+    (when (= active-key entity-key)
+      (swap! app-state assoc-in [:ui :inspector :active-pinned-key] (some-> pinned first :key)))))
+
+(defn set-active-inspector-pinned!
+  "Set active pinned entity in compare tabs."
+  [entity-key]
+  (swap! app-state assoc-in [:ui :inspector :active-pinned-key] entity-key))
+
+(defn inspector-entity-pinned?
+  "Check if current entity key is pinned."
+  [entity-key]
+  (some #(= (:key %) entity-key) (get-in @app-state [:ui :inspector :pinned])))
+
+(defn get-inspector-state
+  "Get right-pane inspector state."
+  []
+  (get-in @app-state [:ui :inspector]))
+
+(defn get-search-state
+  "Get search surface state"
+  []
+  (get-in @app-state [:ui :search-surface]))
+
+(defn get-activity-items
+  "Get activity items"
+  []
+  (get-in @app-state [:ui :activity-items]))
+
 ;; Workspace operations
 (defn load-workspace!
   "Load workspace from file"
@@ -116,7 +295,6 @@
     ;; Electron environment - use Node.js fs
     (try
       (let [fs (js/require "fs")
-            path (js/require "path")
             workspace-data (-> fs (.readFileSync workspace-path "utf8") js/JSON.parse (js->clj :keywordize-keys true))]
 
         ;; Restore buffers
@@ -175,7 +353,7 @@
   "Save current workspace to file"
   [workspace-path]
   (println "Saving workspace to:" workspace-path)
-  (let [workspace-data {:buffers (into {} (for [[id buffer] @buffers]
+  (let [workspace-data {:buffers (into {} (for [[id buffer] (:buffers @app-state)]
                                             [id {:id id
                                                  :path (:path buffer)
                                                  :content (:content buffer)
@@ -356,7 +534,7 @@
     :handler (fn []
                (when (js/confirm "Clear current workspace and create new one?")
                  ;; Clear all buffers
-                 (reset! buffers {})
+                 (swap! app-state assoc :buffers {})
                  ;; Reset current buffer
                  (swap! app-state assoc :current-buffer nil)
                  ;; Reset UI state

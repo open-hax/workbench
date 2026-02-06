@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Input Validation and Sanitization for OpenCode Unified
 
-import { BasicPromptInjectionDetector, PromptInjectionDetectorResult } from '@promethean-os/security';
+import {
+  BasicPromptInjectionDetector,
+  type PromptInjectionDetectorResult,
+} from '../../../../../riatzukiza/promethean/packages/security/dist/testing/prompt-injection.js';
 
 /**
  * Validation error types
