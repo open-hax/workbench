@@ -1,0 +1,777 @@
+2026-02-06T12:06:30: 
+2026-02-06T12:06:30: > @promethean-os/opencode-unified@0.1.0 build:clojurescript /home/err/devel/orgs/open-hax/workbench
+2026-02-06T12:06:30: > shadow-cljs release app
+2026-02-06T12:06:30: 
+2026-02-06T12:06:30: shadow-cljs - config: /home/err/devel/orgs/open-hax/workbench/shadow-cljs.edn
+2026-02-06T12:06:30: WARNING: The org.clojure/core.async dependency in shadow-cljs.edn was ignored. Default version is used and override is not allowed to ensure compatibility.
+2026-02-06T12:06:30: The versions provided by shadow-cljs can be found here: https://clojars.org/thheller/shadow-cljs/versions/2.28.23
+2026-02-06T12:06:33: [:app] Compiling ...
+2026-02-06T12:06:41: [1m------ WARNING #1 -  -----------------------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/plugins.cljs:121:9
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 118 |        (let [plugin-namespace (symbol (str "opencode-unified.plugins." (:name plugin-metadata)))][0m
+2026-02-06T12:06:41: [2m 119 | [0m
+2026-02-06T12:06:41: [2m 120 |          ;; Try to require the plugin namespace[0m
+2026-02-06T12:06:41: [1m 121 |          (try[0m
+2026-02-06T12:06:41: ---------------^----------------------------------------------------------------
+2026-02-06T12:06:41:  [33;1munreachable code[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 122 |            ;; For now, skip dynamic require and create mock plugin[0m
+2026-02-06T12:06:41: [2m 123 |            (catch js/Error e[0m
+2026-02-06T12:06:41: [2m 124 |              ;; If plugin doesn't exist, create a mock plugin for demonstration[0m
+2026-02-06T12:06:41: [2m 125 |              (println "Plugin namespace not found, creating mock plugin:" plugin-namespace)))[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: nil
+2026-02-06T12:06:41: [:app] Build completed. (89 files, 8 compiled, 47 warnings, 7.48s)
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #1 - :redef-in-file ---------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/buffers.cljs:687:1
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 684 | [0m
+2026-02-06T12:06:41: [2m 685 | ;; Motion functions[0m
+2026-02-06T12:06:41: [2m 686 | [0m
+2026-02-06T12:06:41: [1m 687 | (defn line-col-to-pos [content line col][0m
+2026-02-06T12:06:41: -------^------------------------------------------------------------------------
+2026-02-06T12:06:41:  [33;1mline-col-to-pos at line 366 is being replaced[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 688 |   "Convert line and column numbers (0-based) to buffer position"[0m
+2026-02-06T12:06:41: [2m 689 |   (let [lines (str/split-lines content)[0m
+2026-02-06T12:06:41: [2m 690 |         line-count (count lines)[0m
+2026-02-06T12:06:41: [2m 691 |         line-num (if (and (number? line) (>= line 0)) line 0)][0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #2 - :redef-in-file ---------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/buffers.cljs:703:1
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 700 |                  (+ pos (inc (count (first remaining-lines))))[0m
+2026-02-06T12:06:41: [2m 701 |                  (rest remaining-lines)))))))[0m
+2026-02-06T12:06:41: [2m 702 | [0m
+2026-02-06T12:06:41: [1m 703 | (defn get-line-content [content line-num][0m
+2026-02-06T12:06:41: -------^------------------------------------------------------------------------
+2026-02-06T12:06:41:  [33;1mget-line-content at line 382 is being replaced[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 704 |   "Get content of specific line (0-based)"[0m
+2026-02-06T12:06:41: [2m 705 |   (let [lines (str/split-lines content)][0m
+2026-02-06T12:06:41: [2m 706 |     (when (< line-num (count lines))[0m
+2026-02-06T12:06:41: [2m 707 |       (nth lines line-num))))[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #3 - :redef-in-file ---------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/buffers.cljs:709:1
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 706 |     (when (< line-num (count lines))[0m
+2026-02-06T12:06:41: [2m 707 |       (nth lines line-num))))[0m
+2026-02-06T12:06:41: [2m 708 | [0m
+2026-02-06T12:06:41: [1m 709 | (defn get-line-count [content][0m
+2026-02-06T12:06:41: -------^------------------------------------------------------------------------
+2026-02-06T12:06:41:  [33;1mget-line-count at line 388 is being replaced[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 710 |   "Get total number of lines in content"[0m
+2026-02-06T12:06:41: [2m 711 |   (count (str/split-lines content)))[0m
+2026-02-06T12:06:41: [2m 712 | [0m
+2026-02-06T12:06:41: [2m 713 | (defn get-current-line [buffer][0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #4 - :redef-in-file ---------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/buffers.cljs:743:1
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 740 |       (let [new-pos (line-col-to-pos content line-num col-num)][0m
+2026-02-06T12:06:41: [2m 741 |         (assoc buffer :cursor-pos new-pos)))))[0m
+2026-02-06T12:06:41: [2m 742 | [0m
+2026-02-06T12:06:41: [1m 743 | (defn get-line-range [content line-num][0m
+2026-02-06T12:06:41: -------^------------------------------------------------------------------------
+2026-02-06T12:06:41:  [33;1mget-line-range at line 392 is being replaced[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 744 |   "Get start and end positions of a line (0-based)"[0m
+2026-02-06T12:06:41: [2m 745 |   (let [lines (str/split-lines content)[0m
+2026-02-06T12:06:41: [2m 746 |         line-count (count lines)][0m
+2026-02-06T12:06:41: [2m 747 |     (when (< line-num line-count)[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #5 - :undeclared-var --------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/evil.cljs:9:4
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m   6 | ;; ===== Mode state =====[0m
+2026-02-06T12:06:41: [2m   7 | (defn set-mode! [mode][0m
+2026-02-06T12:06:41: [2m   8 |   (state/set-evil-mode! mode)[0m
+2026-02-06T12:06:41: [1m   9 |   (update-statusbar))[0m
+2026-02-06T12:06:41: ----------^---------------------------------------------------------------------
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/update-statusbar[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  10 | [0m
+2026-02-06T12:06:41: [2m  11 | (defn get-mode [][0m
+2026-02-06T12:06:41: [2m  12 |   (state/get-evil-mode))[0m
+2026-02-06T12:06:41: [2m  13 | [0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #6 - :undeclared-var --------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:85:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  82 |                                                        "Ctrl-r" {:handler #(evil/redo)}[0m
+2026-02-06T12:06:41: [2m  83 |                                                        "/" {:handler #(evil/search-forward)}[0m
+2026-02-06T12:06:41: [2m  84 |                                                        "?" {:handler #(evil/search-backward)}[0m
+2026-02-06T12:06:41: [1m  85 |                                                        "n" {:handler #(evil/next-search-result)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/next-search-result[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  86 |                                                        "N" {:handler #(evil/previous-search-result)}[0m
+2026-02-06T12:06:41: [2m  87 |                                                        "v" {:handler #(evil/enter-visual-mode)}[0m
+2026-02-06T12:06:41: [2m  88 |                                                        "V" {:handler #(evil/enter-visual-line-mode)}[0m
+2026-02-06T12:06:41: [2m  89 |                                                        "ESC" {:handler #(evil/exit-visual-mode)}}}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #7 - :undeclared-var --------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:67:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  64 |                                                        "j" {:handler #(evil/move-cursor :down)}[0m
+2026-02-06T12:06:41: [2m  65 |                                                        "k" {:handler #(evil/move-cursor :up)}[0m
+2026-02-06T12:06:41: [2m  66 |                                                        "l" {:handler #(evil/move-cursor :right)}[0m
+2026-02-06T12:06:41: [1m  67 |                                                        "w" {:handler #(evil/word-forward)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/word-forward[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  68 |                                                        "b" {:handler #(evil/word-backward)}[0m
+2026-02-06T12:06:41: [2m  69 |                                                        "0" {:handler #(evil/beginning-of-line)}[0m
+2026-02-06T12:06:41: [2m  70 |                                                        "$" {:handler #(evil/end-of-line)}[0m
+2026-02-06T12:06:41: [2m  71 |                                                        "gg" {:handler #(evil/beginning-of-buffer)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #8 - :undeclared-var --------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:82:77
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  79 |                                                        "p" {:handler #(evil/paste-after)}[0m
+2026-02-06T12:06:41: [2m  80 |                                                        "P" {:handler #(evil/paste-before)}[0m
+2026-02-06T12:06:41: [2m  81 |                                                        "u" {:handler #(evil/undo)}[0m
+2026-02-06T12:06:41: [1m  82 |                                                        "Ctrl-r" {:handler #(evil/redo)}[0m
+2026-02-06T12:06:41: -----------------------------------------------------------------------------------^
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/redo[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  83 |                                                        "/" {:handler #(evil/search-forward)}[0m
+2026-02-06T12:06:41: [2m  84 |                                                        "?" {:handler #(evil/search-backward)}[0m
+2026-02-06T12:06:41: [2m  85 |                                                        "n" {:handler #(evil/next-search-result)}[0m
+2026-02-06T12:06:41: [2m  86 |                                                        "N" {:handler #(evil/previous-search-result)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #9 - :undeclared-var --------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:71:73
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  68 |                                                        "b" {:handler #(evil/word-backward)}[0m
+2026-02-06T12:06:41: [2m  69 |                                                        "0" {:handler #(evil/beginning-of-line)}[0m
+2026-02-06T12:06:41: [2m  70 |                                                        "$" {:handler #(evil/end-of-line)}[0m
+2026-02-06T12:06:41: [1m  71 |                                                        "gg" {:handler #(evil/beginning-of-buffer)}[0m
+2026-02-06T12:06:41: -------------------------------------------------------------------------------^
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/beginning-of-buffer[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  72 |                                                        "G" {:handler #(evil/end-of-buffer)}[0m
+2026-02-06T12:06:41: [2m  73 |                                                        "i" {:handler #(evil/enter-insert-mode)}[0m
+2026-02-06T12:06:41: [2m  74 |                                                        "a" {:handler #(evil/append-after-cursor)}[0m
+2026-02-06T12:06:41: [2m  75 |                                                        "o" {:handler #(evil/open-line-below)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #10 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:79:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  76 |                                                        "O" {:handler #(evil/open-line-above)}[0m
+2026-02-06T12:06:41: [2m  77 |                                                        "dd" {:handler #(evil/delete-line)}[0m
+2026-02-06T12:06:41: [2m  78 |                                                        "yy" {:handler #(evil/yank-line)}[0m
+2026-02-06T12:06:41: [1m  79 |                                                        "p" {:handler #(evil/paste-after)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/paste-after[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  80 |                                                        "P" {:handler #(evil/paste-before)}[0m
+2026-02-06T12:06:41: [2m  81 |                                                        "u" {:handler #(evil/undo)}[0m
+2026-02-06T12:06:41: [2m  82 |                                                        "Ctrl-r" {:handler #(evil/redo)}[0m
+2026-02-06T12:06:41: [2m  83 |                                                        "/" {:handler #(evil/search-forward)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #11 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:83:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  80 |                                                        "P" {:handler #(evil/paste-before)}[0m
+2026-02-06T12:06:41: [2m  81 |                                                        "u" {:handler #(evil/undo)}[0m
+2026-02-06T12:06:41: [2m  82 |                                                        "Ctrl-r" {:handler #(evil/redo)}[0m
+2026-02-06T12:06:41: [1m  83 |                                                        "/" {:handler #(evil/search-forward)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/search-forward[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  84 |                                                        "?" {:handler #(evil/search-backward)}[0m
+2026-02-06T12:06:41: [2m  85 |                                                        "n" {:handler #(evil/next-search-result)}[0m
+2026-02-06T12:06:41: [2m  86 |                                                        "N" {:handler #(evil/previous-search-result)}[0m
+2026-02-06T12:06:41: [2m  87 |                                                        "v" {:handler #(evil/enter-visual-mode)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #12 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:64:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  61 | [0m
+2026-02-06T12:06:41: [2m  62 | ;; Evil mode keybindings[0m
+2026-02-06T12:06:41: [2m  63 | (defonce evil-keybindings (r/atom {:normal {:bindings {"h" {:handler #(evil/move-cursor :left)}[0m
+2026-02-06T12:06:41: [1m  64 |                                                        "j" {:handler #(evil/move-cursor :down)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/move-cursor[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  65 |                                                        "k" {:handler #(evil/move-cursor :up)}[0m
+2026-02-06T12:06:41: [2m  66 |                                                        "l" {:handler #(evil/move-cursor :right)}[0m
+2026-02-06T12:06:41: [2m  67 |                                                        "w" {:handler #(evil/word-forward)}[0m
+2026-02-06T12:06:41: [2m  68 |                                                        "b" {:handler #(evil/word-backward)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #13 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:72:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  69 |                                                        "0" {:handler #(evil/beginning-of-line)}[0m
+2026-02-06T12:06:41: [2m  70 |                                                        "$" {:handler #(evil/end-of-line)}[0m
+2026-02-06T12:06:41: [2m  71 |                                                        "gg" {:handler #(evil/beginning-of-buffer)}[0m
+2026-02-06T12:06:41: [1m  72 |                                                        "G" {:handler #(evil/end-of-buffer)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/end-of-buffer[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  73 |                                                        "i" {:handler #(evil/enter-insert-mode)}[0m
+2026-02-06T12:06:41: [2m  74 |                                                        "a" {:handler #(evil/append-after-cursor)}[0m
+2026-02-06T12:06:41: [2m  75 |                                                        "o" {:handler #(evil/open-line-below)}[0m
+2026-02-06T12:06:41: [2m  76 |                                                        "O" {:handler #(evil/open-line-above)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #14 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:84:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  81 |                                                        "u" {:handler #(evil/undo)}[0m
+2026-02-06T12:06:41: [2m  82 |                                                        "Ctrl-r" {:handler #(evil/redo)}[0m
+2026-02-06T12:06:41: [2m  83 |                                                        "/" {:handler #(evil/search-forward)}[0m
+2026-02-06T12:06:41: [1m  84 |                                                        "?" {:handler #(evil/search-backward)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/search-backward[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  85 |                                                        "n" {:handler #(evil/next-search-result)}[0m
+2026-02-06T12:06:41: [2m  86 |                                                        "N" {:handler #(evil/previous-search-result)}[0m
+2026-02-06T12:06:41: [2m  87 |                                                        "v" {:handler #(evil/enter-visual-mode)}[0m
+2026-02-06T12:06:41: [2m  88 |                                                        "V" {:handler #(evil/enter-visual-line-mode)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #15 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:77:73
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  74 |                                                        "a" {:handler #(evil/append-after-cursor)}[0m
+2026-02-06T12:06:41: [2m  75 |                                                        "o" {:handler #(evil/open-line-below)}[0m
+2026-02-06T12:06:41: [2m  76 |                                                        "O" {:handler #(evil/open-line-above)}[0m
+2026-02-06T12:06:41: [1m  77 |                                                        "dd" {:handler #(evil/delete-line)}[0m
+2026-02-06T12:06:41: -------------------------------------------------------------------------------^
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/delete-line[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  78 |                                                        "yy" {:handler #(evil/yank-line)}[0m
+2026-02-06T12:06:41: [2m  79 |                                                        "p" {:handler #(evil/paste-after)}[0m
+2026-02-06T12:06:41: [2m  80 |                                                        "P" {:handler #(evil/paste-before)}[0m
+2026-02-06T12:06:41: [2m  81 |                                                        "u" {:handler #(evil/undo)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #16 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:74:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  71 |                                                        "gg" {:handler #(evil/beginning-of-buffer)}[0m
+2026-02-06T12:06:41: [2m  72 |                                                        "G" {:handler #(evil/end-of-buffer)}[0m
+2026-02-06T12:06:41: [2m  73 |                                                        "i" {:handler #(evil/enter-insert-mode)}[0m
+2026-02-06T12:06:41: [1m  74 |                                                        "a" {:handler #(evil/append-after-cursor)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/append-after-cursor[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  75 |                                                        "o" {:handler #(evil/open-line-below)}[0m
+2026-02-06T12:06:41: [2m  76 |                                                        "O" {:handler #(evil/open-line-above)}[0m
+2026-02-06T12:06:41: [2m  77 |                                                        "dd" {:handler #(evil/delete-line)}[0m
+2026-02-06T12:06:41: [2m  78 |                                                        "yy" {:handler #(evil/yank-line)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #17 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:80:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  77 |                                                        "dd" {:handler #(evil/delete-line)}[0m
+2026-02-06T12:06:41: [2m  78 |                                                        "yy" {:handler #(evil/yank-line)}[0m
+2026-02-06T12:06:41: [2m  79 |                                                        "p" {:handler #(evil/paste-after)}[0m
+2026-02-06T12:06:41: [1m  80 |                                                        "P" {:handler #(evil/paste-before)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/paste-before[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  81 |                                                        "u" {:handler #(evil/undo)}[0m
+2026-02-06T12:06:41: [2m  82 |                                                        "Ctrl-r" {:handler #(evil/redo)}[0m
+2026-02-06T12:06:41: [2m  83 |                                                        "/" {:handler #(evil/search-forward)}[0m
+2026-02-06T12:06:41: [2m  84 |                                                        "?" {:handler #(evil/search-backward)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #18 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:76:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  73 |                                                        "i" {:handler #(evil/enter-insert-mode)}[0m
+2026-02-06T12:06:41: [2m  74 |                                                        "a" {:handler #(evil/append-after-cursor)}[0m
+2026-02-06T12:06:41: [2m  75 |                                                        "o" {:handler #(evil/open-line-below)}[0m
+2026-02-06T12:06:41: [1m  76 |                                                        "O" {:handler #(evil/open-line-above)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/open-line-above[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  77 |                                                        "dd" {:handler #(evil/delete-line)}[0m
+2026-02-06T12:06:41: [2m  78 |                                                        "yy" {:handler #(evil/yank-line)}[0m
+2026-02-06T12:06:41: [2m  79 |                                                        "p" {:handler #(evil/paste-after)}[0m
+2026-02-06T12:06:41: [2m  80 |                                                        "P" {:handler #(evil/paste-before)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #19 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:65:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  62 | ;; Evil mode keybindings[0m
+2026-02-06T12:06:41: [2m  63 | (defonce evil-keybindings (r/atom {:normal {:bindings {"h" {:handler #(evil/move-cursor :left)}[0m
+2026-02-06T12:06:41: [2m  64 |                                                        "j" {:handler #(evil/move-cursor :down)}[0m
+2026-02-06T12:06:41: [1m  65 |                                                        "k" {:handler #(evil/move-cursor :up)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/move-cursor[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  66 |                                                        "l" {:handler #(evil/move-cursor :right)}[0m
+2026-02-06T12:06:41: [2m  67 |                                                        "w" {:handler #(evil/word-forward)}[0m
+2026-02-06T12:06:41: [2m  68 |                                                        "b" {:handler #(evil/word-backward)}[0m
+2026-02-06T12:06:41: [2m  69 |                                                        "0" {:handler #(evil/beginning-of-line)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #20 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:68:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  65 |                                                        "k" {:handler #(evil/move-cursor :up)}[0m
+2026-02-06T12:06:41: [2m  66 |                                                        "l" {:handler #(evil/move-cursor :right)}[0m
+2026-02-06T12:06:41: [2m  67 |                                                        "w" {:handler #(evil/word-forward)}[0m
+2026-02-06T12:06:41: [1m  68 |                                                        "b" {:handler #(evil/word-backward)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/word-backward[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  69 |                                                        "0" {:handler #(evil/beginning-of-line)}[0m
+2026-02-06T12:06:41: [2m  70 |                                                        "$" {:handler #(evil/end-of-line)}[0m
+2026-02-06T12:06:41: [2m  71 |                                                        "gg" {:handler #(evil/beginning-of-buffer)}[0m
+2026-02-06T12:06:41: [2m  72 |                                                        "G" {:handler #(evil/end-of-buffer)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #21 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:69:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  66 |                                                        "l" {:handler #(evil/move-cursor :right)}[0m
+2026-02-06T12:06:41: [2m  67 |                                                        "w" {:handler #(evil/word-forward)}[0m
+2026-02-06T12:06:41: [2m  68 |                                                        "b" {:handler #(evil/word-backward)}[0m
+2026-02-06T12:06:41: [1m  69 |                                                        "0" {:handler #(evil/beginning-of-line)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/beginning-of-line[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  70 |                                                        "$" {:handler #(evil/end-of-line)}[0m
+2026-02-06T12:06:41: [2m  71 |                                                        "gg" {:handler #(evil/beginning-of-buffer)}[0m
+2026-02-06T12:06:41: [2m  72 |                                                        "G" {:handler #(evil/end-of-buffer)}[0m
+2026-02-06T12:06:41: [2m  73 |                                                        "i" {:handler #(evil/enter-insert-mode)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #22 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:66:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  63 | (defonce evil-keybindings (r/atom {:normal {:bindings {"h" {:handler #(evil/move-cursor :left)}[0m
+2026-02-06T12:06:41: [2m  64 |                                                        "j" {:handler #(evil/move-cursor :down)}[0m
+2026-02-06T12:06:41: [2m  65 |                                                        "k" {:handler #(evil/move-cursor :up)}[0m
+2026-02-06T12:06:41: [1m  66 |                                                        "l" {:handler #(evil/move-cursor :right)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/move-cursor[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  67 |                                                        "w" {:handler #(evil/word-forward)}[0m
+2026-02-06T12:06:41: [2m  68 |                                                        "b" {:handler #(evil/word-backward)}[0m
+2026-02-06T12:06:41: [2m  69 |                                                        "0" {:handler #(evil/beginning-of-line)}[0m
+2026-02-06T12:06:41: [2m  70 |                                                        "$" {:handler #(evil/end-of-line)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #23 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:86:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  83 |                                                        "/" {:handler #(evil/search-forward)}[0m
+2026-02-06T12:06:41: [2m  84 |                                                        "?" {:handler #(evil/search-backward)}[0m
+2026-02-06T12:06:41: [2m  85 |                                                        "n" {:handler #(evil/next-search-result)}[0m
+2026-02-06T12:06:41: [1m  86 |                                                        "N" {:handler #(evil/previous-search-result)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/previous-search-result[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  87 |                                                        "v" {:handler #(evil/enter-visual-mode)}[0m
+2026-02-06T12:06:41: [2m  88 |                                                        "V" {:handler #(evil/enter-visual-line-mode)}[0m
+2026-02-06T12:06:41: [2m  89 |                                                        "ESC" {:handler #(evil/exit-visual-mode)}}}[0m
+2026-02-06T12:06:41: [2m  90 | [0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #24 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:81:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  78 |                                                        "yy" {:handler #(evil/yank-line)}[0m
+2026-02-06T12:06:41: [2m  79 |                                                        "p" {:handler #(evil/paste-after)}[0m
+2026-02-06T12:06:41: [2m  80 |                                                        "P" {:handler #(evil/paste-before)}[0m
+2026-02-06T12:06:41: [1m  81 |                                                        "u" {:handler #(evil/undo)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/undo[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  82 |                                                        "Ctrl-r" {:handler #(evil/redo)}[0m
+2026-02-06T12:06:41: [2m  83 |                                                        "/" {:handler #(evil/search-forward)}[0m
+2026-02-06T12:06:41: [2m  84 |                                                        "?" {:handler #(evil/search-backward)}[0m
+2026-02-06T12:06:41: [2m  85 |                                                        "n" {:handler #(evil/next-search-result)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #25 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:63:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  60 |                                                                                                    :handler #(fn [] (state/show-which-key!))}}}}}}}}))[0m
+2026-02-06T12:06:41: [2m  61 | [0m
+2026-02-06T12:06:41: [2m  62 | ;; Evil mode keybindings[0m
+2026-02-06T12:06:41: [1m  63 | (defonce evil-keybindings (r/atom {:normal {:bindings {"h" {:handler #(evil/move-cursor :left)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/move-cursor[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  64 |                                                        "j" {:handler #(evil/move-cursor :down)}[0m
+2026-02-06T12:06:41: [2m  65 |                                                        "k" {:handler #(evil/move-cursor :up)}[0m
+2026-02-06T12:06:41: [2m  66 |                                                        "l" {:handler #(evil/move-cursor :right)}[0m
+2026-02-06T12:06:41: [2m  67 |                                                        "w" {:handler #(evil/word-forward)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #26 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:78:73
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  75 |                                                        "o" {:handler #(evil/open-line-below)}[0m
+2026-02-06T12:06:41: [2m  76 |                                                        "O" {:handler #(evil/open-line-above)}[0m
+2026-02-06T12:06:41: [2m  77 |                                                        "dd" {:handler #(evil/delete-line)}[0m
+2026-02-06T12:06:41: [1m  78 |                                                        "yy" {:handler #(evil/yank-line)}[0m
+2026-02-06T12:06:41: -------------------------------------------------------------------------------^
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/yank-line[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  79 |                                                        "p" {:handler #(evil/paste-after)}[0m
+2026-02-06T12:06:41: [2m  80 |                                                        "P" {:handler #(evil/paste-before)}[0m
+2026-02-06T12:06:41: [2m  81 |                                                        "u" {:handler #(evil/undo)}[0m
+2026-02-06T12:06:41: [2m  82 |                                                        "Ctrl-r" {:handler #(evil/redo)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #27 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:70:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  67 |                                                        "w" {:handler #(evil/word-forward)}[0m
+2026-02-06T12:06:41: [2m  68 |                                                        "b" {:handler #(evil/word-backward)}[0m
+2026-02-06T12:06:41: [2m  69 |                                                        "0" {:handler #(evil/beginning-of-line)}[0m
+2026-02-06T12:06:41: [1m  70 |                                                        "$" {:handler #(evil/end-of-line)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/end-of-line[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  71 |                                                        "gg" {:handler #(evil/beginning-of-buffer)}[0m
+2026-02-06T12:06:41: [2m  72 |                                                        "G" {:handler #(evil/end-of-buffer)}[0m
+2026-02-06T12:06:41: [2m  73 |                                                        "i" {:handler #(evil/enter-insert-mode)}[0m
+2026-02-06T12:06:41: [2m  74 |                                                        "a" {:handler #(evil/append-after-cursor)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #28 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:75:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  72 |                                                        "G" {:handler #(evil/end-of-buffer)}[0m
+2026-02-06T12:06:41: [2m  73 |                                                        "i" {:handler #(evil/enter-insert-mode)}[0m
+2026-02-06T12:06:41: [2m  74 |                                                        "a" {:handler #(evil/append-after-cursor)}[0m
+2026-02-06T12:06:41: [1m  75 |                                                        "o" {:handler #(evil/open-line-below)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/open-line-below[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  76 |                                                        "O" {:handler #(evil/open-line-above)}[0m
+2026-02-06T12:06:41: [2m  77 |                                                        "dd" {:handler #(evil/delete-line)}[0m
+2026-02-06T12:06:41: [2m  78 |                                                        "yy" {:handler #(evil/yank-line)}[0m
+2026-02-06T12:06:41: [2m  79 |                                                        "p" {:handler #(evil/paste-after)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #29 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:100:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  97 |                                                        "l" {:handler #(evil/extend-selection :right)}[0m
+2026-02-06T12:06:41: [2m  98 |                                                        "w" {:handler #(evil/extend-selection :word-forward)}[0m
+2026-02-06T12:06:41: [2m  99 |                                                        "b" {:handler #(evil/extend-selection :word-backward)}[0m
+2026-02-06T12:06:41: [1m 100 |                                                        "d" {:handler #(evil/delete-selection)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/delete-selection[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 101 |                                                        "y" {:handler #(evil/yank-selection)}[0m
+2026-02-06T12:06:41: [2m 102 |                                                        "c" {:handler #(evil/change-selection)}[0m
+2026-02-06T12:06:41: [2m 103 |                                                        "ESC" {:handler #(evil/exit-visual-mode)}}}}))[0m
+2026-02-06T12:06:41: [2m 104 | [0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #30 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:98:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  95 |                                                        "j" {:handler #(evil/extend-selection :down)}[0m
+2026-02-06T12:06:41: [2m  96 |                                                        "k" {:handler #(evil/extend-selection :up)}[0m
+2026-02-06T12:06:41: [2m  97 |                                                        "l" {:handler #(evil/extend-selection :right)}[0m
+2026-02-06T12:06:41: [1m  98 |                                                        "w" {:handler #(evil/extend-selection :word-forward)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/extend-selection[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  99 |                                                        "b" {:handler #(evil/extend-selection :word-backward)}[0m
+2026-02-06T12:06:41: [2m 100 |                                                        "d" {:handler #(evil/delete-selection)}[0m
+2026-02-06T12:06:41: [2m 101 |                                                        "y" {:handler #(evil/yank-selection)}[0m
+2026-02-06T12:06:41: [2m 102 |                                                        "c" {:handler #(evil/change-selection)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #31 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:95:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  92 |                                                        "Ctrl-[" {:handler #(evil/enter-normal-mode)}}}[0m
+2026-02-06T12:06:41: [2m  93 | [0m
+2026-02-06T12:06:41: [2m  94 |                                    :visual {:bindings {"h" {:handler #(evil/extend-selection :left)}[0m
+2026-02-06T12:06:41: [1m  95 |                                                        "j" {:handler #(evil/extend-selection :down)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/extend-selection[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  96 |                                                        "k" {:handler #(evil/extend-selection :up)}[0m
+2026-02-06T12:06:41: [2m  97 |                                                        "l" {:handler #(evil/extend-selection :right)}[0m
+2026-02-06T12:06:41: [2m  98 |                                                        "w" {:handler #(evil/extend-selection :word-forward)}[0m
+2026-02-06T12:06:41: [2m  99 |                                                        "b" {:handler #(evil/extend-selection :word-backward)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #32 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:96:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  93 | [0m
+2026-02-06T12:06:41: [2m  94 |                                    :visual {:bindings {"h" {:handler #(evil/extend-selection :left)}[0m
+2026-02-06T12:06:41: [2m  95 |                                                        "j" {:handler #(evil/extend-selection :down)}[0m
+2026-02-06T12:06:41: [1m  96 |                                                        "k" {:handler #(evil/extend-selection :up)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/extend-selection[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  97 |                                                        "l" {:handler #(evil/extend-selection :right)}[0m
+2026-02-06T12:06:41: [2m  98 |                                                        "w" {:handler #(evil/extend-selection :word-forward)}[0m
+2026-02-06T12:06:41: [2m  99 |                                                        "b" {:handler #(evil/extend-selection :word-backward)}[0m
+2026-02-06T12:06:41: [2m 100 |                                                        "d" {:handler #(evil/delete-selection)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #33 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:99:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  96 |                                                        "k" {:handler #(evil/extend-selection :up)}[0m
+2026-02-06T12:06:41: [2m  97 |                                                        "l" {:handler #(evil/extend-selection :right)}[0m
+2026-02-06T12:06:41: [2m  98 |                                                        "w" {:handler #(evil/extend-selection :word-forward)}[0m
+2026-02-06T12:06:41: [1m  99 |                                                        "b" {:handler #(evil/extend-selection :word-backward)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/extend-selection[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 100 |                                                        "d" {:handler #(evil/delete-selection)}[0m
+2026-02-06T12:06:41: [2m 101 |                                                        "y" {:handler #(evil/yank-selection)}[0m
+2026-02-06T12:06:41: [2m 102 |                                                        "c" {:handler #(evil/change-selection)}[0m
+2026-02-06T12:06:41: [2m 103 |                                                        "ESC" {:handler #(evil/exit-visual-mode)}}}}))[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #34 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:101:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  98 |                                                        "w" {:handler #(evil/extend-selection :word-forward)}[0m
+2026-02-06T12:06:41: [2m  99 |                                                        "b" {:handler #(evil/extend-selection :word-backward)}[0m
+2026-02-06T12:06:41: [2m 100 |                                                        "d" {:handler #(evil/delete-selection)}[0m
+2026-02-06T12:06:41: [1m 101 |                                                        "y" {:handler #(evil/yank-selection)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/yank-selection[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 102 |                                                        "c" {:handler #(evil/change-selection)}[0m
+2026-02-06T12:06:41: [2m 103 |                                                        "ESC" {:handler #(evil/exit-visual-mode)}}}}))[0m
+2026-02-06T12:06:41: [2m 104 | [0m
+2026-02-06T12:06:41: [2m 105 | ;; Helper functions[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #35 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:97:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  94 |                                    :visual {:bindings {"h" {:handler #(evil/extend-selection :left)}[0m
+2026-02-06T12:06:41: [2m  95 |                                                        "j" {:handler #(evil/extend-selection :down)}[0m
+2026-02-06T12:06:41: [2m  96 |                                                        "k" {:handler #(evil/extend-selection :up)}[0m
+2026-02-06T12:06:41: [1m  97 |                                                        "l" {:handler #(evil/extend-selection :right)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/extend-selection[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  98 |                                                        "w" {:handler #(evil/extend-selection :word-forward)}[0m
+2026-02-06T12:06:41: [2m  99 |                                                        "b" {:handler #(evil/extend-selection :word-backward)}[0m
+2026-02-06T12:06:41: [2m 100 |                                                        "d" {:handler #(evil/delete-selection)}[0m
+2026-02-06T12:06:41: [2m 101 |                                                        "y" {:handler #(evil/yank-selection)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #36 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:94:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  91 |                                    :insert {:bindings {"ESC" {:handler #(evil/enter-normal-mode)}[0m
+2026-02-06T12:06:41: [2m  92 |                                                        "Ctrl-[" {:handler #(evil/enter-normal-mode)}}}[0m
+2026-02-06T12:06:41: [2m  93 | [0m
+2026-02-06T12:06:41: [1m  94 |                                    :visual {:bindings {"h" {:handler #(evil/extend-selection :left)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/extend-selection[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  95 |                                                        "j" {:handler #(evil/extend-selection :down)}[0m
+2026-02-06T12:06:41: [2m  96 |                                                        "k" {:handler #(evil/extend-selection :up)}[0m
+2026-02-06T12:06:41: [2m  97 |                                                        "l" {:handler #(evil/extend-selection :right)}[0m
+2026-02-06T12:06:41: [2m  98 |                                                        "w" {:handler #(evil/extend-selection :word-forward)}[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #37 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/keymap.cljs:102:72
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  99 |                                                        "b" {:handler #(evil/extend-selection :word-backward)}[0m
+2026-02-06T12:06:41: [2m 100 |                                                        "d" {:handler #(evil/delete-selection)}[0m
+2026-02-06T12:06:41: [2m 101 |                                                        "y" {:handler #(evil/yank-selection)}[0m
+2026-02-06T12:06:41: [1m 102 |                                                        "c" {:handler #(evil/change-selection)}[0m
+2026-02-06T12:06:41: ------------------------------------------------------------------------------^-
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.evil/change-selection[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 103 |                                                        "ESC" {:handler #(evil/exit-visual-mode)}}}}))[0m
+2026-02-06T12:06:41: [2m 104 | [0m
+2026-02-06T12:06:41: [2m 105 | ;; Helper functions[0m
+2026-02-06T12:06:41: [2m 106 | (defn normalize-key [event][0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #38 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/opencode.cljs:102:6
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m  99 |                    :gh_grep {:name "GitHub Grep" :description "GitHub code search"}[0m
+2026-02-06T12:06:41: [2m 100 |                    :web-search-prime {:name "Web Search" :description "Web search capabilities"}[0m
+2026-02-06T12:06:41: [2m 101 |                    :zai-mcp-server {:name "ZAI MCP Server" :description "AI and vision tools"}}][0m
+2026-02-06T12:06:41: [1m 102 |     (Promise.resolve {:success true :tools mcp-tools})))[0m
+2026-02-06T12:06:41: ------------^-------------------------------------------------------------------
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.opencode/Promise[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 103 | [0m
+2026-02-06T12:06:41: [2m 104 | (defn execute-tool[0m
+2026-02-06T12:06:41: [2m 105 |   "Execute an Opencode tool via MCP"[0m
+2026-02-06T12:06:41: [2m 106 |   [tool-name parameters & [options]][0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #39 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/opencode.cljs:126:6
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 123 |                      :completed-at (js/Date.)}))[0m
+2026-02-06T12:06:41: [2m 124 |      1000)[0m
+2026-02-06T12:06:41: [2m 125 | [0m
+2026-02-06T12:06:41: [1m 126 |     (Promise.resolve {:success true :execution-id (str execution-id)})))[0m
+2026-02-06T12:06:41: ------------^-------------------------------------------------------------------
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.opencode/Promise[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 127 | [0m
+2026-02-06T12:06:41: [2m 128 | ;; Agent management[0m
+2026-02-06T12:06:41: [2m 129 | (defn list-active-agents[0m
+2026-02-06T12:06:41: [2m 130 |   "Get list of active Opencode agents"[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #40 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/opencode.cljs:134:4
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 131 |   [][0m
+2026-02-06T12:06:41: [2m 132 |   ;; For now, return mock agent data[0m
+2026-02-06T12:06:41: [2m 133 |   ;; In a real implementation, this would query the MCP server[0m
+2026-02-06T12:06:41: [1m 134 |   (Promise.resolve {:success true[0m
+2026-02-06T12:06:41: ----------^---------------------------------------------------------------------
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.opencode/Promise[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 135 |                     :agents [{:id "agent-1" :type "general" :status "active" :session-id "session-1"}[0m
+2026-02-06T12:06:41: [2m 136 |                              {:id "agent-2" :type "code-reviewer" :status "idle" :session-id nil}]}))[0m
+2026-02-06T12:06:41: [2m 137 | [0m
+2026-02-06T12:06:41: [2m 138 | (defn spawn-agent[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #41 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/opencode.cljs:144:6
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 141 |   ;; For now, simulate agent spawning[0m
+2026-02-06T12:06:41: [2m 142 |   ;; In a real implementation, this would call the MCP server[0m
+2026-02-06T12:06:41: [2m 143 |   (let [agent-id (str "agent-" (random-uuid))][0m
+2026-02-06T12:06:41: [1m 144 |     (Promise.resolve {:success true[0m
+2026-02-06T12:06:41: ------------^-------------------------------------------------------------------
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.opencode/Promise[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 145 |                       :agent-id agent-id[0m
+2026-02-06T12:06:41: [2m 146 |                       :agent-type agent-type[0m
+2026-02-06T12:06:41: [2m 147 |                       :status "spawning"})))[0m
+2026-02-06T12:06:41: [2m 148 | [0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #42 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/opencode.cljs:154:4
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 151 |   [agent-id message & [message-type]][0m
+2026-02-06T12:06:41: [2m 152 |   ;; For now, simulate sending message to agent[0m
+2026-02-06T12:06:41: [2m 153 |   ;; In a real implementation, this would call the MCP server[0m
+2026-02-06T12:06:41: [1m 154 |   (Promise.resolve {:success true[0m
+2026-02-06T12:06:41: ----------^---------------------------------------------------------------------
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.opencode/Promise[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 155 |                     :message-id (str "msg-" (random-uuid))[0m
+2026-02-06T12:06:41: [2m 156 |                     :response (str "Agent response to: " message)}))[0m
+2026-02-06T12:06:41: [2m 157 | [0m
+2026-02-06T12:06:41: [2m 158 | (defn get-agent-status[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #43 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/opencode.cljs:163:4
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 160 |   [agent-id][0m
+2026-02-06T12:06:41: [2m 161 |   ;; For now, simulate getting agent status[0m
+2026-02-06T12:06:41: [2m 162 |   ;; In a real implementation, this would call the MCP server[0m
+2026-02-06T12:06:41: [1m 163 |   (Promise.resolve {:success true[0m
+2026-02-06T12:06:41: ----------^---------------------------------------------------------------------
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.opencode/Promise[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 164 |                     :agent-id agent-id[0m
+2026-02-06T12:06:41: [2m 165 |                     :status "active"[0m
+2026-02-06T12:06:41: [2m 166 |                     :last-activity (js/Date.)}))[0m
+2026-02-06T12:06:41: [2m 167 | [0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #44 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/opencode.cljs:193:19
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 190 |   (-> (opencode-read-file file-path)[0m
+2026-02-06T12:06:41: [2m 191 |       (.then (fn [result][0m
+2026-02-06T12:06:41: [2m 192 |                (if (:error result)[0m
+2026-02-06T12:06:41: [1m 193 |                  (buffers/create-buffer[0m
+2026-02-06T12:06:41: -------------------------^------------------------------------------------------
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.buffers/create-buffer[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 194 |                   file-path[0m
+2026-02-06T12:06:41: [2m 195 |                   (str "Error loading file: " (:error result)))[0m
+2026-02-06T12:06:41: [2m 196 |                  (buffers/create-buffer file-path (:content result)))))))[0m
+2026-02-06T12:06:41: [2m 197 | [0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #45 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/opencode.cljs:196:19
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 193 |                  (buffers/create-buffer[0m
+2026-02-06T12:06:41: [2m 194 |                   file-path[0m
+2026-02-06T12:06:41: [2m 195 |                   (str "Error loading file: " (:error result)))[0m
+2026-02-06T12:06:41: [1m 196 |                  (buffers/create-buffer file-path (:content result)))))))[0m
+2026-02-06T12:06:41: -------------------------^------------------------------------------------------
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.buffers/create-buffer[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 197 | [0m
+2026-02-06T12:06:41: [2m 198 | (defn save-buffer-with-opencode[0m
+2026-02-06T12:06:41: [2m 199 |   "Save buffer using Opencode file operations"[0m
+2026-02-06T12:06:41: [2m 200 |   [buffer-id][0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #46 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/opencode.cljs:218:6
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 215 |         initial-content (str "# Agent Chat: " agent-type " (" agent-id ")\n\n"[0m
+2026-02-06T12:06:41: [2m 216 |                              "---\n\n"[0m
+2026-02-06T12:06:41: [2m 217 |                              "Type your message below and press C-c C-c to send.\n\n")][0m
+2026-02-06T12:06:41: [1m 218 |     (buffers/create-buffer buffer-path initial-content {:agent-id agent-id}[0m
+2026-02-06T12:06:41: ------------^-------------------------------------------------------------------
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.buffers/create-buffer[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 219 |                            :agent-type agent-type[0m
+2026-02-06T12:06:41: [2m 220 |                            :buffer-type :agent-chat)))[0m
+2026-02-06T12:06:41: [2m 221 | [0m
+2026-02-06T12:06:41: [2m 222 | (defn send-buffer-content-to-agent[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: 
+2026-02-06T12:06:41: [1m------ WARNING #47 - :undeclared-var -------------------------------------------[0m
+2026-02-06T12:06:41:  File: /home/err/devel/orgs/open-hax/workbench/src/clojurescript/opencode_unified/opencode.cljs:254:6
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 251 |                              "Status: Running...\n\n"[0m
+2026-02-06T12:06:41: [2m 252 |                              "---\n\n"[0m
+2026-02-06T12:06:41: [2m 253 |                              "Results will appear below.\n\n")][0m
+2026-02-06T12:06:41: [1m 254 |     (buffers/create-buffer buffer-path initial-content {:tool-name tool-name}[0m
+2026-02-06T12:06:41: ------------^-------------------------------------------------------------------
+2026-02-06T12:06:41:  [33;1mUse of undeclared Var opencode-unified.buffers/create-buffer[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------
+2026-02-06T12:06:41: [2m 255 |                            :execution-id execution-id[0m
+2026-02-06T12:06:41: [2m 256 |                            :buffer-type :tool-execution)))[0m
+2026-02-06T12:06:41: [2m 257 | [0m
+2026-02-06T12:06:41: [2m 258 | (defn update-tool-execution-buffer[0m
+2026-02-06T12:06:41: --------------------------------------------------------------------------------

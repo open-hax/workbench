@@ -26,7 +26,7 @@
 (defn electron-api []
   "Get Electron API if available"
   (when (electron?)
-    (.-electronAPI js/window)))
+    (.-electronAPI ^js js/window)))
 
 (defn show-notification? []
   "Check if notifications are supported"

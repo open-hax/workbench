@@ -1,4 +1,4 @@
-import { PromptInjectionDetectorResult } from '@promethean-os/security';
+import { type PromptInjectionDetectorResult } from '../../../../../riatzukiza/promethean/packages/security/dist/testing/prompt-injection.js';
 /**
  * Validation error types
  */

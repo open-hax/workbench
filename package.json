@@ -55,7 +55,7 @@
     "build:full": "pnpm build:typescript && pnpm build:clojurescript",
     "clean": "rimraf dist",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "typecheck:clojurescript": "shadow-cljs check",
+    "typecheck:clojurescript": "shadow-cljs check app renderer preload main server",
     "test": "pnpm build:typescript && npx ava --require tsx/cjs src/tests/validation.test.ts src/tests/basic.test.ts",
     "test:unit": "pnpm build:typescript && ava dist/tests/**/*.test.js",
     "test:integration": "pnpm build:typescript && ava dist/tests/integration/**/*.test.js",

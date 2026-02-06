@@ -1,7 +1,7 @@
 {
   "config": {
-    "configFile": "/home/err/devel/promethean/packages/opencode-unified/playwright.config.ts",
-    "rootDir": "/home/err/devel/promethean/packages/opencode-unified/tests/e2e",
+    "configFile": "/home/err/devel/orgs/open-hax/workbench/playwright.config.ts",
+    "rootDir": "/home/err/devel/orgs/open-hax/workbench/tests/e2e",
     "forbidOnly": false,
     "fullyParallel": true,
     "globalSetup": null,
@@ -14,6 +14,89 @@
       "actualWorkers": 4
     },
     "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/err/devel/orgs/open-hax/workbench/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/err/devel/orgs/open-hax/workbench/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.playwright.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/err/devel/orgs/open-hax/workbench/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/home/err/devel/orgs/open-hax/workbench/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.playwright.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/err/devel/orgs/open-hax/workbench/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/home/err/devel/orgs/open-hax/workbench/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.playwright.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/err/devel/orgs/open-hax/workbench/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "mobile-chrome",
+        "name": "mobile-chrome",
+        "testDir": "/home/err/devel/orgs/open-hax/workbench/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.playwright.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/err/devel/orgs/open-hax/workbench/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "mobile-safari",
+        "name": "mobile-safari",
+        "testDir": "/home/err/devel/orgs/open-hax/workbench/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.playwright.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
     "reporter": [
       [
         "html",
@@ -42,96 +125,15 @@
       "max": 5,
       "threshold": 300000
     },
-    "quiet": false,
-    "projects": [
-      {
-        "outputDir": "/home/err/devel/promethean/packages/opencode-unified/test-results",
-        "repeatEach": 1,
-        "retries": 0,
-        "metadata": {
-          "actualWorkers": 4
-        },
-        "id": "chromium",
-        "name": "chromium",
-        "testDir": "/home/err/devel/promethean/packages/opencode-unified/tests/e2e",
-        "testIgnore": [],
-        "testMatch": [
-          "**/*.playwright.spec.ts"
-        ],
-        "timeout": 30000
-      },
-      {
-        "outputDir": "/home/err/devel/promethean/packages/opencode-unified/test-results",
-        "repeatEach": 1,
-        "retries": 0,
-        "metadata": {
-          "actualWorkers": 4
-        },
-        "id": "firefox",
-        "name": "firefox",
-        "testDir": "/home/err/devel/promethean/packages/opencode-unified/tests/e2e",
-        "testIgnore": [],
-        "testMatch": [
-          "**/*.playwright.spec.ts"
-        ],
-        "timeout": 30000
-      },
-      {
-        "outputDir": "/home/err/devel/promethean/packages/opencode-unified/test-results",
-        "repeatEach": 1,
-        "retries": 0,
-        "metadata": {
-          "actualWorkers": 4
-        },
-        "id": "webkit",
-        "name": "webkit",
-        "testDir": "/home/err/devel/promethean/packages/opencode-unified/tests/e2e",
-        "testIgnore": [],
-        "testMatch": [
-          "**/*.playwright.spec.ts"
-        ],
-        "timeout": 30000
-      },
-      {
-        "outputDir": "/home/err/devel/promethean/packages/opencode-unified/test-results",
-        "repeatEach": 1,
-        "retries": 0,
-        "metadata": {
-          "actualWorkers": 4
-        },
-        "id": "mobile-chrome",
-        "name": "mobile-chrome",
-        "testDir": "/home/err/devel/promethean/packages/opencode-unified/tests/e2e",
-        "testIgnore": [],
-        "testMatch": [
-          "**/*.playwright.spec.ts"
-        ],
-        "timeout": 30000
-      },
-      {
-        "outputDir": "/home/err/devel/promethean/packages/opencode-unified/test-results",
-        "repeatEach": 1,
-        "retries": 0,
-        "metadata": {
-          "actualWorkers": 4
-        },
-        "id": "mobile-safari",
-        "name": "mobile-safari",
-        "testDir": "/home/err/devel/promethean/packages/opencode-unified/tests/e2e",
-        "testIgnore": [],
-        "testMatch": [
-          "**/*.playwright.spec.ts"
-        ],
-        "timeout": 30000
-      }
-    ],
+    "runAgents": "none",
     "shard": null,
+    "tags": [],
     "updateSnapshots": "missing",
     "updateSourceMethod": "patch",
-    "version": "1.56.0",
+    "version": "1.58.1",
     "workers": 4,
     "webServer": {
-      "command": "pnpm build:full && node src/typescript/server/web-ui/server.ts",
+      "command": "pnpm build:clojurescript && cp static/index.html public/index.html && python3 -m http.server 8080 -d public",
       "port": 8080,
       "reuseExistingServer": true,
       "timeout": 120000
@@ -139,20 +141,20 @@
   },
   "suites": [
     {
-      "title": "basic-connectivity.playwright.spec.ts",
-      "file": "basic-connectivity.playwright.spec.ts",
+      "title": "activity-feed.playwright.spec.ts",
+      "file": "activity-feed.playwright.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Basic Connectivity Tests",
-          "file": "basic-connectivity.playwright.spec.ts",
+          "title": "Activity Feed & Default View",
+          "file": "activity-feed.playwright.spec.ts",
           "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "should connect to the application server",
+              "title": "should show activity view by default on launch",
               "ok": true,
               "tags": [],
               "tests": [
@@ -167,16 +169,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 11283,
+                      "duration": 2371,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "Loading still visible after timeout - this is expected\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-10-20T00:15:18.884Z",
+                      "startTime": "2026-02-06T02:45:06.887Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -184,14 +182,14 @@
                   "status": "expected"
                 }
               ],
-              "id": "a76b2edf9a39e8aeec50-30c462882713d1cb6ffd",
-              "file": "basic-connectivity.playwright.spec.ts",
-              "line": 4,
+              "id": "d90789ba9faffddd3d9a-139e5cc0f895d4d11d5c",
+              "file": "activity-feed.playwright.spec.ts",
+              "line": 8,
               "column": 3
             },
             {
-              "title": "should have basic HTML structure",
-              "ok": false,
+              "title": "should display errors first in activity feed",
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -204,67 +202,27 @@
                     {
                       "workerIndex": 1,
                       "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 11444,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('head title')\nExpected substring: \u001b[32m\"Promethean OpenCode\"\u001b[39m\nReceived string:    \u001b[31m\"\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('head title')\u001b[22m\n\u001b[2m    14 × locator resolved to <title>Promethean OpenCode</title>\u001b[22m\n\u001b[2m       - unexpected value \"\"\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('head title')\nExpected substring: \u001b[32m\"Promethean OpenCode\"\u001b[39m\nReceived string:    \u001b[31m\"\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('head title')\u001b[22m\n\u001b[2m    14 × locator resolved to <title>Promethean OpenCode</title>\u001b[22m\n\u001b[2m       - unexpected value \"\"\u001b[22m\n\n    at /home/err/devel/promethean/packages/opencode-unified/tests/e2e/basic-connectivity.playwright.spec.ts:34:46",
-                        "location": {
-                          "file": "/home/err/devel/promethean/packages/opencode-unified/tests/e2e/basic-connectivity.playwright.spec.ts",
-                          "column": 46,
-                          "line": 34
-                        },
-                        "snippet": "  32 |     // Check basic HTML structure\n  33 |     await expect(page.locator('html')).toHaveAttribute('lang', 'en');\n> 34 |     await expect(page.locator('head title')).toContainText('Promethean OpenCode');\n     |                                              ^\n  35 |     await expect(page.locator('body #app')).toBeVisible();\n  36 |\n  37 |     // Check for meta viewport tag"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/home/err/devel/promethean/packages/opencode-unified/tests/e2e/basic-connectivity.playwright.spec.ts",
-                            "column": 46,
-                            "line": 34
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('head title')\nExpected substring: \u001b[32m\"Promethean OpenCode\"\u001b[39m\nReceived string:    \u001b[31m\"\"\u001b[39m\nTimeout: 10000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('head title')\u001b[22m\n\u001b[2m    14 × locator resolved to <title>Promethean OpenCode</title>\u001b[22m\n\u001b[2m       - unexpected value \"\"\u001b[22m\n\n\n  32 |     // Check basic HTML structure\n  33 |     await expect(page.locator('html')).toHaveAttribute('lang', 'en');\n> 34 |     await expect(page.locator('head title')).toContainText('Promethean OpenCode');\n     |                                              ^\n  35 |     await expect(page.locator('body #app')).toBeVisible();\n  36 |\n  37 |     // Check for meta viewport tag\n    at /home/err/devel/promethean/packages/opencode-unified/tests/e2e/basic-connectivity.playwright.spec.ts:34:46"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 2548,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-10-20T00:15:18.915Z",
+                      "startTime": "2026-02-06T02:45:06.865Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/home/err/devel/promethean/packages/opencode-unified/test-results/basic-connectivity.playwri-2b28a-d-have-basic-HTML-structure-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/home/err/devel/promethean/packages/opencode-unified/test-results/basic-connectivity.playwri-2b28a-d-have-basic-HTML-structure-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/home/err/devel/promethean/packages/opencode-unified/test-results/basic-connectivity.playwri-2b28a-d-have-basic-HTML-structure-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/home/err/devel/promethean/packages/opencode-unified/tests/e2e/basic-connectivity.playwright.spec.ts",
-                        "column": 46,
-                        "line": 34
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
-              "id": "a76b2edf9a39e8aeec50-7df38dd682c09a719aab",
-              "file": "basic-connectivity.playwright.spec.ts",
-              "line": 29,
+              "id": "d90789ba9faffddd3d9a-c7d82130cdff46580fde",
+              "file": "activity-feed.playwright.spec.ts",
+              "line": 24,
               "column": 3
             },
             {
-              "title": "should load CSS styles",
+              "title": "should filter activity items",
               "ok": true,
               "tags": [],
               "tests": [
@@ -279,12 +237,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 948,
+                      "duration": 2699,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-10-20T00:15:18.876Z",
+                      "startTime": "2026-02-06T02:45:06.830Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -292,13 +250,30 @@
                   "status": "expected"
                 }
               ],
-              "id": "a76b2edf9a39e8aeec50-0b21deef70c0be9dae73",
-              "file": "basic-connectivity.playwright.spec.ts",
-              "line": 42,
+              "id": "d90789ba9faffddd3d9a-2741ae99f6640012bb59",
+              "file": "activity-feed.playwright.spec.ts",
+              "line": 44,
               "column": 3
-            },
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "search-surface.playwright.spec.ts",
+      "file": "search-surface.playwright.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Search Surface Integration",
+          "file": "search-surface.playwright.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
             {
-              "title": "should handle JavaScript errors gracefully",
+              "title": "should open search surface with Ctrl+K",
               "ok": true,
               "tags": [],
               "tests": [
@@ -313,16 +288,12 @@
                       "workerIndex": 3,
                       "parallelIndex": 3,
                       "status": "passed",
-                      "duration": 3963,
+                      "duration": 2471,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "JavaScript errors detected: [\n  \u001b[32m'No protocol method IWatchable.-add-watch defined for type function: function opencode_unified$state$buffers(){\\n'\u001b[39m +\n    \u001b[32m'return opencode_unified.state.get_buffers();\\n'\u001b[39m +\n    \u001b[32m'}'\u001b[39m\n]\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-10-20T00:15:18.861Z",
+                      "startTime": "2026-02-06T02:45:06.934Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -330,13 +301,13 @@
                   "status": "expected"
                 }
               ],
-              "id": "a76b2edf9a39e8aeec50-cfe9f379a2bb234056a7",
-              "file": "basic-connectivity.playwright.spec.ts",
-              "line": 64,
+              "id": "0716a4b1c68b47e312a2-3e48a993a6c132576e68",
+              "file": "search-surface.playwright.spec.ts",
+              "line": 8,
               "column": 3
             },
             {
-              "title": "should be responsive",
+              "title": "should switch tabs",
               "ok": true,
               "tags": [],
               "tests": [
@@ -348,15 +319,15 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 10469,
+                      "duration": 2506,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-10-20T00:15:20.165Z",
+                      "startTime": "2026-02-06T02:45:09.348Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -364,9 +335,43 @@
                   "status": "expected"
                 }
               ],
-              "id": "a76b2edf9a39e8aeec50-f76e444cba9402e87f79",
-              "file": "basic-connectivity.playwright.spec.ts",
-              "line": 86,
+              "id": "0716a4b1c68b47e312a2-e4bd6079959d5259f1a6",
+              "file": "search-surface.playwright.spec.ts",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "should show errors first in sessions tab",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 2354,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-06T02:45:09.498Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0716a4b1c68b47e312a2-910a302bd19472b84a87",
+              "file": "search-surface.playwright.spec.ts",
+              "line": 25,
               "column": 3
             }
           ]
@@ -376,11 +381,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-10-20T00:15:18.431Z",
-    "duration": 12330.609,
-    "expected": 4,
+    "startTime": "2026-02-06T02:45:05.875Z",
+    "duration": 6034.601,
+    "expected": 6,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }

@@ -36,7 +36,7 @@
   ;; Set up Electron-specific event listeners
   (when (env/electron?)
     (let [electron-api (env/electron-api)]
-      (.onMenuAction electron-api
+      (.onMenuAction ^js electron-api
                      (fn [action]
                        (println "Menu action:" action)
                        (case action
@@ -46,11 +46,11 @@
                          "quit" (println "Quit requested")
                          (println "Unknown menu action:" action))))
 
-      (.onPluginEvent electron-api
+      (.onPluginEvent ^js electron-api
                       (fn [event]
                         (println "Plugin event:" event)))
 
-      (.onMainMessage electron-api
+      (.onMainMessage ^js electron-api
                       "opencode-response"
                       (fn [response]
                         (println "Opencode response:" response)))))

@@ -1,7 +1,15 @@
 (ns opencode-unified.state
   (:require [reagent.core :as r]
             [goog.object :as gobj]
-            [opencode-unified.env :as env]))
+            [opencode-unified.env :as env]
+            [opencode-unified.openplanner :as openplanner]
+            [clojure.string :as str]))
+
+(def default-activity-items
+  [{:id 1 :type :error :title "Failed to connect to server" :time "2 mins ago" :timestamp 1700000120000}
+   {:id 2 :type :info :title "Project initialized" :time "1 hour ago" :timestamp 1700000000000}
+   {:id 3 :type :info :title "Dependencies installed" :time "2 hours ago" :timestamp 1699990000000}
+   {:id 4 :type :error :title "Compilation failed" :time "5 mins ago" :timestamp 1700000100000}])
 
 ;; Global app state - simplified for debugging
 (defonce app-state
@@ -12,25 +20,128 @@
                         :last-search ""
                         :search-direction :forward
                         :count 1}
-            :statusbar {:left "NORMAL" :center "" :right "Evil Mode - normal"}
-            :ui {:theme :dark
-                 :search-surface {:visible? false
-                                  :query ""
-                                  :active-tab :sessions
-                                  :filter :all
-                                  :view :list
-                                  :page 1
-                                  :page-size 2} ;; :all, :errors, :info
-                 :inspector {:selection nil
-                             :context []
-                             :context-source []
-                             :pane-error nil
-                             :pinned []
-                             :active-pinned-key nil}
-                 :activity-items [{:id 1 :type :error :title "Failed to connect to server" :time "2 mins ago" :timestamp 1700000120000}
-                                   {:id 2 :type :info :title "Project initialized" :time "1 hour ago" :timestamp 1700000000000}
-                                   {:id 3 :type :info :title "Dependencies installed" :time "2 hours ago" :timestamp 1699990000000}
-                                   {:id 4 :type :error :title "Compilation failed" :time "5 mins ago" :timestamp 1700000100000}]}}))
+             :statusbar {:left "NORMAL" :center "" :right "Evil Mode - normal"}
+             :ui {:theme :dark
+                  :backend {:openplanner {:connected? false
+                                          :endpoint nil
+                                          :last-error nil}}
+                  :search-surface {:visible? false
+                                   :query ""
+                                   :active-tab :sessions
+                                   :filter :all
+                                   :view :list
+                                   :page 1
+                                   :page-size 2} ;; :all, :errors, :info
+                  :imports {:chatgpt {:file-path ""
+                                      :job nil
+                                      :status :idle
+                                      :error nil}}
+                  :inspector {:selection nil
+                              :context []
+                              :context-source []
+                              :pane-error nil
+                              :pinned []
+                              :active-pinned-key nil}
+                  :activity-items default-activity-items}}))
+
+(defonce chatgpt-job-poller (atom nil))
+
+(declare update-statusbar!)
+
+(defn stop-chatgpt-job-poll! []
+  (when-let [timer @chatgpt-job-poller]
+    (js/clearInterval timer)
+    (reset! chatgpt-job-poller nil)))
+
+(defn- set-backend-error! [error-message]
+  (swap! app-state assoc-in [:ui :backend :openplanner :connected?] false)
+  (swap! app-state assoc-in [:ui :backend :openplanner :last-error] error-message)
+  (swap! app-state assoc-in [:ui :activity-items] default-activity-items)
+  (update-statusbar! "NORMAL" "" "OpenPlanner offline - using fallback activity"))
+
+(defn- set-backend-connected! []
+  (let [cfg (openplanner/runtime-config)]
+    (swap! app-state assoc-in [:ui :backend :openplanner :connected?] true)
+    (swap! app-state assoc-in [:ui :backend :openplanner :endpoint] (:endpoint cfg))
+    (swap! app-state assoc-in [:ui :backend :openplanner :last-error] nil)
+    (update-statusbar! "NORMAL" "" "OpenPlanner connected")))
+
+(defn load-openplanner-activity!
+  ([] (load-openplanner-activity! nil))
+  ([query]
+   (let [safe-query (str/trim (or query ""))
+         request (if (str/blank? safe-query)
+                   (openplanner/load-sessions-activity)
+                   (openplanner/search-activity safe-query))]
+     (-> request
+         (.then (fn [items]
+                  (set-backend-connected!)
+                  (swap! app-state assoc-in [:ui :activity-items]
+                         (if (seq items) items default-activity-items))
+                  items))
+         (.catch (fn [error]
+                   (set-backend-error! (.-message error))
+                   default-activity-items))))))
+
+(defn set-chatgpt-import-file-path!
+  [file-path]
+  (swap! app-state assoc-in [:ui :imports :chatgpt :file-path] file-path))
+
+(defn get-chatgpt-import-state []
+  (get-in @app-state [:ui :imports :chatgpt]))
+
+(defn- apply-chatgpt-job-status! [job]
+  (let [status-key (keyword (or (:status job) "idle"))]
+    (swap! app-state assoc-in [:ui :imports :chatgpt :job] job)
+    (swap! app-state assoc-in [:ui :imports :chatgpt :status] status-key)
+    (swap! app-state assoc-in [:ui :imports :chatgpt :error] (:error job))))
+
+(defn poll-chatgpt-job!
+  [job-id]
+  (stop-chatgpt-job-poll!)
+  (let [tick (fn []
+               (let [request (openplanner/fetch-job job-id)]
+                 (-> request
+                     (.then (fn [result]
+                              (let [job (:job result)
+                                    status (keyword (or (:status job) "idle"))]
+                                (apply-chatgpt-job-status! job)
+                                (when (#{:done :error} status)
+                                  (stop-chatgpt-job-poll!)
+                                  (load-openplanner-activity!)))))
+                     (.catch (fn [error]
+                               (swap! app-state assoc-in [:ui :imports :chatgpt :status] :error)
+                               (swap! app-state assoc-in [:ui :imports :chatgpt :error] (.-message error))
+                               (stop-chatgpt-job-poll!))))))]
+    (tick)
+    (reset! chatgpt-job-poller (js/setInterval tick 2000))))
+
+(defn start-chatgpt-import!
+  ([] (start-chatgpt-import! (get-in @app-state [:ui :imports :chatgpt :file-path])))
+  ([file-path]
+   (let [trimmed-path (str/trim (or file-path ""))]
+     (if (str/blank? trimmed-path)
+       (do
+         (swap! app-state assoc-in [:ui :imports :chatgpt :status] :error)
+         (swap! app-state assoc-in [:ui :imports :chatgpt :error] "ChatGPT export file path is required"))
+       (do
+         (swap! app-state assoc-in [:ui :imports :chatgpt :status] :creating)
+         (swap! app-state assoc-in [:ui :imports :chatgpt :error] nil)
+         (-> (openplanner/create-chatgpt-import-job trimmed-path)
+             (.then (fn [result]
+                      (let [job (:job result)
+                            job-id (:id job)]
+                        (set-chatgpt-import-file-path! trimmed-path)
+                        (apply-chatgpt-job-status! job)
+                        (when job-id
+                          (poll-chatgpt-job! job-id))
+                        result)))
+             (.catch (fn [error]
+                       (swap! app-state assoc-in [:ui :imports :chatgpt :status] :error)
+                       (swap! app-state assoc-in [:ui :imports :chatgpt :error] (.-message error))))))))))
+
+(defn bootstrap-openplanner! []
+  (load-openplanner-activity!))
 
 (defn- inspector-context-failure?
   "Returns true when test flags request a simulated inspector context failure."
@@ -162,7 +273,9 @@
   "Set search surface query"
   [query]
   (swap! app-state assoc-in [:ui :search-surface :query] query)
-  (swap! app-state assoc-in [:ui :search-surface :page] 1))
+  (swap! app-state assoc-in [:ui :search-surface :page] 1)
+  (when (= :sessions (get-in @app-state [:ui :search-surface :active-tab]))
+    (load-openplanner-activity! query)))
 
 (defn set-search-tab!
   "Set search surface active tab"
@@ -170,7 +283,9 @@
   (swap! app-state assoc-in [:ui :search-surface :active-tab] tab)
   (swap! app-state assoc-in [:ui :search-surface :page] 1)
   (swap! app-state assoc-in [:ui :inspector :selection] nil)
-  (swap! app-state assoc-in [:ui :inspector :context] []))
+  (swap! app-state assoc-in [:ui :inspector :context] [])
+  (when (= tab :sessions)
+    (load-openplanner-activity! (get-in @app-state [:ui :search-surface :query]))))
 
 (defn set-search-filter!
   "Set search surface filter"
@@ -324,7 +439,7 @@
     ;; Web environment - use localStorage or fetch
     (try
       (let [workspace-key (str "workspace-" (hash workspace-path))
-            stored-data (.getItem js/localStorage workspace-key)]
+             stored-data (.getItem ^js js/localStorage workspace-key)]
         (if stored-data
           (let [workspace-data (-> stored-data js/JSON.parse (js->clj :keywordize-keys true))]
             ;; Restore state similar to Electron version
@@ -394,7 +509,7 @@
       (try
         (let [workspace-key (str "workspace-" (hash workspace-path))
               json-data (js/JSON.stringify (clj->js workspace-data) nil 2)]
-          (.setItem js/localStorage workspace-key json-data)
+           (.setItem ^js js/localStorage workspace-key json-data)
           (println "Workspace saved to localStorage")
           {:success true})
         (catch js/Error e
@@ -521,7 +636,7 @@
                      workspace-path (or (js/prompt "Workspace path for auto-save:" "./workspace.json")
                                         "./workspace.json")]
                  (when (and interval workspace-path)
-                   (enable-auto-save! (js/parseInt interval) workspace-path))))}
+                    (enable-auto-save! (js/parseInt interval 10) workspace-path))))}
 
    {:name "Disable Auto-Save"
     :description "Disable auto-save"

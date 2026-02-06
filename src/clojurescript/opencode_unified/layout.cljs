@@ -2,6 +2,7 @@
   (:require [reagent.core :as r]
             [opencode-unified.state :as state]
             [opencode-unified.buffers :as buffers]
+            [opencode-unified.workspace :as workspace]
             [opencode-unified.command-palette :as command-palette]
             [opencode-unified.persistence :as persistence]
             [clojure.string :as str]))
@@ -16,6 +17,8 @@
 (def ROUTE_DOCS "#/workflow/docs")
 (def ROUTE_SETTINGS "#/workflow/settings")
 
+(declare testid-safe)
+
 (defn navigate-route! [route]
   (set! (.-hash js/location) route))
 
@@ -24,7 +27,6 @@
   (let [dragging? (r/atom false)
         start-x (r/atom 0)
         start-width (r/atom 0)]
-    
     (r/create-class
      {:component-did-mount
       (fn []
@@ -35,7 +37,7 @@
                                     new-width (if (= direction :left)
                                                 (+ @start-width dx)
                                                 (- @start-width dx))]
-                                (on-resize (max (or min-width 0) 
+                                (on-resize (max (or min-width 0)
                                                 (min (or max-width 10000) new-width))))))
               handle-up (fn []
                           (when @dragging?
@@ -46,33 +48,36 @@
 
       :reagent-render
       (fn [{:keys [width direction class style]}]
-        [:div.resizable-pane
-         {:class class
-          :style (merge {:width width
-                         :position "relative"
-                         :display "flex"
-                         :flex-direction "column"}
-                        style)}
-         
-         children
-         
-         ;; Resize Handle
-         [:div.resize-handle
-          {:on-mouse-down (fn [e]
-                            (.preventDefault e)
-                            (reset! dragging? true)
-                            (reset! start-x (.-clientX e))
-                            (reset! start-width width)
-                            (set! (.-cursor (.-style js/document.body)) "col-resize"))
-           :style {:position "absolute"
-                   (if (= direction :left) :right :left) -2
-                   :top 0
-                   :bottom 0
-                   :width "4px"
-                   :cursor "col-resize"
-                   :z-index 10
-                   :background-color (if @dragging? "var(--accent)" "transparent")
-                   :transition "background-color 0.2s"}}]])})))
+        (let [narrow-layout? (< (.-innerWidth js/window) 820)]
+          [:div.resizable-pane
+           {:class class
+            :style (merge {:width width
+                           :position "relative"
+                           :display "flex"
+                           :flex-direction "column"}
+                          style)}
+           children
+
+           children
+
+           ;; Resize Handle
+           (when-not narrow-layout?
+             [:div.resize-handle
+              {:on-mouse-down (fn [e]
+                                (.preventDefault e)
+                                (reset! dragging? true)
+                                (reset! start-x (.-clientX e))
+                                (reset! start-width width)
+                                (set! (.-cursor (.-style js/document.body)) "col-resize"))
+               :style {:position "absolute"
+                       (if (= direction :left) :right :left) -2
+                       :top 0
+                       :bottom 0
+                       :width "3px"
+                       :cursor "col-resize"
+                       :z-index 2
+                       :background-color (if @dragging? "var(--accent)" "transparent")
+                       :transition "background-color 0.2s"}}])]))})))
 
 ;; --- Workflow Nav (Activity Bar) ---
 (defn workflow-nav [route]
@@ -119,68 +124,70 @@
         icon]))])
 
 (defn docs-route []
-  [:div
-   {:data-testid "workflow-docs-route"
-    :style {:height "100%"
-            :overflow-y "auto"
-            :padding "1rem"
-            :background "var(--bg-primary)"
-            :display "flex"
-            :flex-direction "column"
-            :gap "0.8rem"}}
-   [:div
-    [:h2 {:style {:margin "0 0 0.25rem"
-                  :font-size "1rem"
-                  :font-weight "600"
-                  :color "var(--text-primary)"}}
-     "Workflow Documents"]
-    [:p {:style {:margin 0
-                 :font-size "0.82rem"
-                 :color "var(--text-secondary)"}}
-     "Reference docs surfaced from the workflow-first shell."]]
-   (for [{:keys [id title status category updated]} [{:id "doc-intro"
-                                                      :title "Getting Started"
-                                                      :status "published"
-                                                      :category "Guide"
-                                                      :updated "today"}
-                                                     {:id "doc-api"
-                                                      :title "API Reference"
-                                                      :status "draft"
-                                                      :category "Reference"
-                                                      :updated "2d ago"}
-                                                     {:id "doc-architecture"
-                                                      :title "Architecture"
-                                                      :status "published"
-                                                      :category "Design"
-                                                      :updated "1w ago"}]]
-     ^{:key id}
-     [:div
-      {:data-testid "workflow-doc-item"
-       :style {:display "grid"
-               :grid-template-columns "minmax(0, 1fr) auto"
-               :gap "0.5rem"
-               :align-items "center"
-               :padding "0.65rem 0.75rem"
-               :border "1px solid var(--border)"
-               :border-radius "6px"
-               :background "var(--bg-secondary)"}}
-      [:div
-       [:div {:style {:font-size "0.86rem"
-                      :font-weight "600"
-                      :color "var(--text-primary)"}}
-        title]
-       [:div {:style {:font-size "0.75rem"
-                      :color "var(--text-secondary)"}}
-        (str category " • updated " updated)]]
-      [:span
-       {:style {:font-size "0.72rem"
-                :text-transform "uppercase"
-                :letter-spacing "0.04em"
-                :padding "0.2rem 0.45rem"
-                :border-radius "999px"
-                :color (if (= status "published") "var(--success)" "var(--warning)")
-                :border (str "1px solid " (if (= status "published") "var(--success)" "var(--warning)"))}}
-       status]])])
+  (let [activity-items (r/track state/get-activity-items)]
+    (fn []
+      (let [docs (->> @activity-items
+                      (filter (fn [item]
+                                (or (= (:kind item) "docs")
+                                    (str/includes? (str/lower-case (or (:title item) "")) "doc"))))
+                      vec)]
+        [:div
+         {:data-testid "workflow-docs-route"
+          :style {:height "100%"
+                  :overflow-y "auto"
+                  :padding "1rem"
+                  :background "var(--bg-primary)"
+                  :display "flex"
+                  :flex-direction "column"
+                  :gap "0.8rem"}}
+         [:div
+          [:h2 {:style {:margin "0 0 0.25rem"
+                        :font-size "1rem"
+                        :font-weight "600"
+                        :color "var(--text-primary)"}}
+           "Workflow Documents"]
+          [:p {:style {:margin 0
+                       :font-size "0.82rem"
+                       :color "var(--text-secondary)"}}
+           "Documents inferred from current OpenPlanner activity."]]
+         (if (seq docs)
+           (for [{:keys [id title time source]} docs]
+             ^{:key id}
+             [:div
+              {:data-testid "workflow-doc-item"
+               :style {:display "grid"
+                       :grid-template-columns "minmax(0, 1fr) auto"
+                       :gap "0.5rem"
+                       :align-items "center"
+                       :padding "0.65rem 0.75rem"
+                       :border "1px solid var(--border)"
+                       :border-radius "6px"
+                       :background "var(--bg-secondary)"}}
+              [:div
+               [:div {:style {:font-size "0.86rem"
+                              :font-weight "600"
+                              :color "var(--text-primary)"}}
+                title]
+               [:div {:style {:font-size "0.75rem"
+                              :color "var(--text-secondary)"}}
+                (str "source " (or source "openplanner") " • " (or time "updated recently"))]]
+              [:span
+               {:style {:font-size "0.72rem"
+                        :text-transform "uppercase"
+                        :letter-spacing "0.04em"
+                        :padding "0.2rem 0.45rem"
+                        :border-radius "999px"
+                        :color "var(--success)"
+                        :border "1px solid var(--success)"}}
+               "live"]])
+           [:div
+            {:data-testid "workflow-doc-empty"
+             :style {:padding "0.8rem"
+                     :border "1px dashed var(--border)"
+                     :border-radius "6px"
+                     :color "var(--text-secondary)"
+                     :font-size "0.82rem"}}
+            "No document events available yet."]) ]))))
 
 (defn settings-route []
   (let [compact-mode? (r/atom (persistence/load-state KEY_COMPACT_MODE false))]
@@ -271,18 +278,32 @@
      {:style {:display "flex"
               :gap "0.25rem"}}
 
-     (for [item ["File" "Edit" "View" "Go" "Run" "Terminal" "Help"]]
-       ^{:key item}
-       [:button.menu-item
-        {:on-click #(js/alert (str item " menu"))
-         :style {:background "none"
-                 :border "none"
-                 :color "var(--text-secondary)"
-                 :padding "0.15rem 0.5rem"
-                 :cursor "pointer"
-                 :font-size "0.8rem"
-                 :border-radius "3px"}}
-        item])]]
+     (for [{:keys [label on-click]} [{:label "File"
+                                      :on-click #(buffers/save-current-buffer)}
+                                      {:label "Edit"
+                                       :on-click #(state/update-statusbar! "NORMAL" "" "Edit actions available via command palette")}
+                                      {:label "View"
+                                       :on-click #(state/update-statusbar! "NORMAL" "" "View actions available via command palette")}
+                                      {:label "Go"
+                                       :on-click #(state/update-statusbar! "NORMAL" "" "Go actions available via command palette")}
+                                      {:label "Run"
+                                       :on-click #(state/update-statusbar! "NORMAL" "" "Run actions available via command palette")}
+                                      {:label "Terminal"
+                                       :on-click #(state/update-statusbar! "NORMAL" "" "Terminal actions available via command palette")}
+                                      {:label "Help"
+                                       :on-click #(state/update-statusbar! "NORMAL" "" "Help available in docs route and command palette")}]]
+        ^{:key label}
+        [:button.menu-item
+         {:on-click on-click
+          :data-testid (str "menu-" (str/lower-case label))
+          :style {:background "none"
+                  :border "none"
+                  :color "var(--text-secondary)"
+                  :padding "0.15rem 0.5rem"
+                  :cursor "pointer"
+                  :font-size "0.8rem"
+                  :border-radius "3px"}}
+         label])]]
 
    ;; Window controls
    [:div.header-right
@@ -301,48 +322,126 @@
 
 ;; --- Left sidebar with file tree ---
 (defn left-sidebar []
-  [:div.left-sidebar
-   {:style {:height "100%"
-            :background-color "var(--bg-secondary)"
-            :padding "0.5rem"
-            :overflow-y "auto"}}
+  (let [tree-data (r/atom {})
+        loading-paths (r/atom #{})
+        error-by-path (r/atom {})
+        expanded-paths (r/atom #{"."})
+        workspace-root (r/atom ".")]
+    (letfn [(load-directory! [directory-path force?]
+              (when (or force? (nil? (get @tree-data directory-path)))
+                (swap! loading-paths conj directory-path)
+                (-> (workspace/list-directory directory-path)
+                    (.then (fn [result]
+                             (swap! tree-data assoc directory-path (vec (:entries result)))
+                             (swap! error-by-path dissoc directory-path)
+                             (when (= directory-path ".")
+                               (reset! workspace-root (or (:root result) ".")))))
+                    (.catch (fn [error]
+                              (swap! error-by-path assoc directory-path
+                                     (or (.-message error) (str error)))))
+                    (.then (fn [_]
+                             (swap! loading-paths disj directory-path))))))
+            (toggle-directory! [directory-path]
+              (if (contains? @expanded-paths directory-path)
+                (swap! expanded-paths disj directory-path)
+                (do
+                  (swap! expanded-paths conj directory-path)
+                  (load-directory! directory-path false))))
+            (render-directory [directory-path depth]
+              (let [entries (get @tree-data directory-path [])
+                    directory-loading? (contains? @loading-paths directory-path)
+                    directory-error (get @error-by-path directory-path)]
+                [:div
+                 (when directory-loading?
+                   [:div
+                    {:style {:padding (str "0.1rem 0 0.1rem " (+ 0.35 (* depth 0.9)) "rem")
+                             :font-size "0.72rem"
+                             :color "var(--text-dim)"}}
+                    "Loading..."])
+                 (when directory-error
+                   [:div
+                    {:style {:padding (str "0.1rem 0 0.1rem " (+ 0.35 (* depth 0.9)) "rem")
+                             :font-size "0.72rem"
+                             :color "var(--danger)"}}
+                    directory-error])
+                 (for [entry entries]
+                   ^{:key (:path entry)}
+                   (if (= (:type entry) "directory")
+                     [:div
+                      [:div.file-item
+                       {:data-testid (str "workspace-dir-" (testid-safe (:path entry)))
+                        :on-click #(toggle-directory! (:path entry))
+                        :style {:padding (str "0.15rem 0 0.15rem " (+ 0.35 (* depth 0.9)) "rem")
+                                :cursor "pointer"
+                                :color "var(--text-secondary)"
+                                :display "flex"
+                                :align-items "center"
+                                :gap "4px"
+                                :font-size "0.82rem"}}
+                       [:span (if (contains? @expanded-paths (:path entry)) "v" ">")]
+                       [:span (:name entry)]]
+                      (when (contains? @expanded-paths (:path entry))
+                        (render-directory (:path entry) (inc depth)))]
+                     [:div.file-item
+                      {:data-testid (str "workspace-file-" (testid-safe (:path entry)))
+                       :on-click #(buffers/open-file (:path entry))
+                       :style {:padding (str "0.15rem 0 0.15rem " (+ 1.4 (* depth 0.9)) "rem")
+                               :cursor "pointer"
+                               :color "var(--text-primary)"
+                               :font-size "0.82rem"
+                               :white-space "nowrap"
+                               :overflow "hidden"
+                               :text-overflow "ellipsis"}}
+                      (:name entry)]))]))]
+      (r/create-class
+       {:component-did-mount
+        (fn []
+          (load-directory! "." true))
+        :reagent-render
+        (fn []
+          [:div.left-sidebar
+           {:style {:height "100%"
+                    :display (if (< (.-innerWidth js/window) 820) "none" "block")
+                    :background-color "var(--bg-secondary)"
+                    :padding "0.5rem"
+                    :overflow-y "auto"}}
 
-     [:div.sidebar-section
-      [:h3.sidebar-title
-       {:style {:margin "0 0 0.5rem 0"
-                :font-size "0.8rem"
-                :text-transform "uppercase"
-                :letter-spacing "0.5px"
-                :color "var(--text-dim)"}}
-       "Explorer"]
-
-      ;; File tree placeholder
-      [:div.file-tree
-       {:style {:font-size "0.85rem"}}
-
-       ;; Project files would go here
-       [:div.file-item
-        {:style {:padding "0.15rem 0"
-                 :cursor "pointer"
-                 :color "var(--text-secondary)"
-                 :display "flex"
-                 :align-items "center"
-                 :gap "4px"}}
-        [:span "⌄"] "src"]
-
-       [:div.file-item
-        {:on-click #(buffers/open-file "src/app.cljs")
-         :style {:padding "0.15rem 0 0.15rem 1rem"
-                 :cursor "pointer"
-                 :color "var(--text-primary)"}}
-        "app.cljs"]
-
-       [:div.file-item
-        {:on-click #(buffers/open-file "src/state.cljs")
-         :style {:padding "0.15rem 0 0.15rem 1rem"
-                 :cursor "pointer"
-                 :color "var(--text-primary)"}}
-        "state.cljs"]]]])
+           [:div.sidebar-section
+            [:div
+             {:style {:display "flex"
+                      :align-items "center"
+                      :justify-content "space-between"
+                      :gap "0.35rem"
+                      :margin-bottom "0.45rem"}}
+             [:h3.sidebar-title
+              {:style {:margin 0
+                       :font-size "0.8rem"
+                       :text-transform "uppercase"
+                       :letter-spacing "0.5px"
+                       :color "var(--text-dim)"}}
+              "Explorer"]
+             [:button
+              {:type "button"
+               :data-testid "workspace-refresh"
+               :on-click #(load-directory! "." true)
+               :style {:background "none"
+                       :border "1px solid var(--border)"
+                       :border-radius "4px"
+                       :color "var(--text-secondary)"
+                       :padding "0.1rem 0.35rem"
+                       :font-size "0.7rem"
+                       :cursor "pointer"}}
+              "Refresh"]]
+            [:div
+             {:data-testid "workspace-root"
+              :style {:font-size "0.72rem"
+                      :color "var(--text-dim)"
+                      :margin-bottom "0.35rem"
+                      :word-break "break-all"}}
+             (str "root: " @workspace-root)]
+             [:div.file-tree
+              {:style {:font-size "0.85rem"}}
+              (render-directory "." 0)]]])}))))
 
 ;; --- Tab bar ---
 (defn tab-bar []
@@ -354,15 +453,14 @@
               :overflow-x "auto"
               :height "32px"}}
 
-     (for [[buffer-id buffer] buffers]
-       ^{:key buffer-id}
-       [:div.tab
-        {:class (when (= buffer-id current-buffer-id) "active")
-         :on-click #(state/update-current-buffer!
-                     (fn [b] (assoc b :id buffer-id)))
-         :style {:display "flex"
-                 :align-items "center"
-                 :padding "0 1rem"
+      (for [[buffer-id buffer] buffers]
+        ^{:key buffer-id}
+        [:div.tab
+         {:class (when (= buffer-id current-buffer-id) "active")
+          :on-click #(state/set-current-buffer! buffer-id)
+          :style {:display "flex"
+                  :align-items "center"
+                  :padding "0 1rem"
                  :background-color (if (= buffer-id current-buffer-id)
                                      "var(--bg-primary)"
                                      "var(--bg-secondary)")
@@ -803,6 +901,67 @@
                :background "var(--bg-primary)"}}
       "Next"]]))
 
+(defn- chatgpt-import-panel []
+  (let [import-state (r/track state/get-chatgpt-import-state)]
+    (fn []
+      (let [{:keys [file-path status error job]} @import-state
+            processed (get-in job [:output :processed])]
+        [:div
+         {:data-testid "chatgpt-import-panel"
+          :style {:margin-bottom "0.75rem"
+                  :padding "0.65rem"
+                  :border "1px solid var(--border)"
+                  :border-radius "6px"
+                  :background "var(--bg-secondary)"
+                  :display "flex"
+                  :flex-direction "column"
+                  :gap "0.45rem"}}
+         [:div
+          {:style {:font-size "0.78rem"
+                   :font-weight "600"
+                   :color "var(--text-primary)"}}
+          "ChatGPT Import (OpenPlanner)"]
+         [:div
+          {:style {:display "flex"
+                   :gap "0.45rem"
+                   :align-items "center"}}
+          [:input
+           {:data-testid "chatgpt-import-file-path"
+            :value (or file-path "")
+            :on-change #(state/set-chatgpt-import-file-path! (.. % -target -value))
+            :placeholder "/absolute/path/to/chatgpt-export.zip"
+            :style {:flex "1"
+                    :padding "0.35rem 0.5rem"
+                    :border "1px solid var(--border)"
+                    :border-radius "4px"
+                    :background "var(--bg-primary)"
+                    :color "var(--text-primary)"
+                    :font-size "0.75rem"}}]
+          [:button
+           {:type "button"
+            :data-testid "chatgpt-import-start"
+            :on-click #(state/start-chatgpt-import! file-path)
+            :style {:padding "0.36rem 0.55rem"
+                    :border "1px solid var(--border)"
+                    :border-radius "4px"
+                    :background "var(--bg-primary)"
+                    :color "var(--text-primary)"
+                    :cursor "pointer"
+                    :font-size "0.74rem"}}
+           "Start import"]]
+         [:div
+          {:data-testid "chatgpt-import-status"
+           :style {:font-size "0.72rem"
+                   :color "var(--text-secondary)"}}
+          (str "status=" (name (or status :idle))
+               (when processed (str " • processed=" processed)))]
+         (when error
+           [:div
+            {:data-testid "chatgpt-import-error"
+             :style {:font-size "0.72rem"
+                     :color "var(--danger)"}}
+            error])]))))
+
 ;; --- Activity List ---
 (defn activity-list [items query filter-type view-mode page page-size]
   (let [normalized-query (str/lower-case (or query ""))
@@ -948,17 +1107,39 @@
              page (:page @search-state 1)
              page-size (:page-size @search-state 2)
              
-             ;; Mock results for other tabs
-             other-results (case active-tab
-                            :docs [{:id 1 :type :doc :title "Getting Started" :path "docs/intro.md"}
-                                   {:id 2 :type :doc :title "API Reference" :path "docs/api.md"}
-                                   {:id 3 :type :doc :title "Architecture" :path "docs/architecture.md"}
-                                   {:id 4 :type :doc :title "Troubleshooting" :path "docs/troubleshooting.md"}]
-                             :memories [{:id 1 :type :memory :title "User prefers dark mode" :context "UI Settings"}]
-                             :tools [{:id 1 :type :tool :title "git-master" :desc "Git operations"}
-                                     {:id 2 :type :tool :title "playwright" :desc "Browser automation"}
-                                     {:id 3 :type :tool :title "workspace-build" :desc "Build affected projects"}]
-                             [])
+              other-results (let [items @activity-items]
+                              (case active-tab
+                                :docs (->> items
+                                           (filter (fn [item]
+                                                     (or (= (:kind item) "docs")
+                                                         (str/includes? (str/lower-case (or (:title item) "")) "doc"))))
+                                           (map-indexed (fn [idx item]
+                                                          {:id (or (:id item) (str "doc-" idx))
+                                                           :type :doc
+                                                           :title (:title item)
+                                                           :desc (or (:snippet item) (:source item))}))
+                                           vec)
+                                :memories (->> items
+                                               (filter (fn [item]
+                                                         (or (= (:kind item) "memory")
+                                                             (str/includes? (str/lower-case (or (:title item) "")) "memory"))))
+                                               (map-indexed (fn [idx item]
+                                                              {:id (or (:id item) (str "memory-" idx))
+                                                               :type :memory
+                                                               :title (:title item)
+                                                               :desc (or (:snippet item) (:source item))}))
+                                               vec)
+                                :tools (->> items
+                                            (filter (fn [item]
+                                                      (or (= (:kind item) "tool")
+                                                          (str/includes? (str/lower-case (or (:title item) "")) "tool"))))
+                                            (map-indexed (fn [idx item]
+                                                           {:id (or (:id item) (str "tool-" idx))
+                                                            :type :tool
+                                                            :title (:title item)
+                                                            :desc (or (:snippet item) (:source item))}))
+                                            vec)
+                                []))
              searched-other-results (if (str/blank? query)
                                       other-results
                                       (filter #(str/includes? (str/lower-case (:title %))
@@ -991,8 +1172,20 @@
                     :border-radius "4px"
                     :background-color "var(--bg-primary)"
                     :color "var(--text-primary)"
-                    :font-size "1.1rem"
-                    :outline "none"}}]]
+                     :font-size "1.1rem"
+                     :outline "none"}}]]
+
+          (when-let [backend-state (get-in @state/app-state [:ui :backend :openplanner])]
+            [:div
+             {:data-testid "openplanner-backend-status"
+              :style {:margin-top "0.5rem"
+                      :font-size "0.72rem"
+                      :color (if (:connected? backend-state) "var(--success)" "var(--warning)")}}
+             (if (:connected? backend-state)
+               (str "OpenPlanner: connected" (when-let [endpoint (:endpoint backend-state)] (str " (" endpoint ")")))
+               (str "OpenPlanner: disconnected"
+                    (when-let [backend-error (:last-error backend-state)]
+                      (str " • " backend-error))))])
 
          ;; Tabs
          [:div.search-tabs
@@ -1016,11 +1209,14 @@
              (name tab)])]
 
          ;; Results
-          [:div.search-results
-           {:data-testid "search-results"
-            :style {:padding "0.5rem"
-                    :overflow-y "auto"
-                    :flex "1"}}
+           [:div.search-results
+            {:data-testid "search-results"
+             :style {:padding "0.5rem"
+                     :overflow-y "auto"
+                     :flex "1"}}
+
+            (when (= active-tab :tools)
+              [chatgpt-import-panel])
            
            (if (= active-tab :sessions)
              [activity-list @activity-items query filter-type view-mode page page-size]
@@ -1103,59 +1299,67 @@
         inspector-visible (r/atom (persistence/load-state KEY_INSPECTOR_VISIBLE true))]
     
     (fn [route children]
-      [:div.shell
-       {:style {:display "flex"
-                :flex-direction "column"
-                :height "100vh"
-                :width "100vw"
-                :background-color "var(--bg-primary)"
-                :color "var(--text-primary)"}}
-       
-       [header]
-       
-       [:div.workspace
-        {:style {:display "flex"
-                 :flex "1"
-                 :overflow "hidden"}}
-        
-        ;; 1. Workflow Nav (Activity Bar)
-         [workflow-nav route]
-        
-        ;; 2. Left Pane (Explorer)
-        [resizable-pane
-         {:width @left-width
-          :min-width 150
-          :max-width 500
-          :direction :left
-          :on-resize (fn [w] 
-                       (reset! left-width w)
-                       (persistence/save-state! KEY_LEFT_PANE_WIDTH w))
-          :style {:border-right "1px solid var(--border)"}
-          :children [left-sidebar]}]
-        
-        ;; 3. Main Area (Editor)
-        [:div.main-area
-         {:style {:flex "1"
-                  :display "flex"
+      (let [viewport-width (.-innerWidth js/window)
+            compact-layout? (< viewport-width 1100)
+            narrow-layout? (< viewport-width 820)
+            show-left-pane? (not narrow-layout?)
+            show-right-pane? (and @inspector-visible (not compact-layout?))]
+        [:div.shell
+         {:style {:display "flex"
                   :flex-direction "column"
-                  :min-width "0" ;; Prevent flex overflow
-                  :background-color "var(--bg-primary)"}}
-         children]
+                  :height "100vh"
+                  :width "100vw"
+                  :background-color "var(--bg-primary)"
+                  :color "var(--text-primary)"}}
         
-        ;; 4. Inspector Pane (Right)
-        (when @inspector-visible
-          [resizable-pane
-           {:width @right-width
-            :min-width 200
-            :max-width 600
-            :direction :right
-            :on-resize (fn [w]
-                         (reset! right-width w)
-                         (persistence/save-state! KEY_RIGHT_PANE_WIDTH w))
-            :style {:border-left "1px solid var(--border)"}
-            :children [inspector-pane]}])]
-       
-       [status-bar]
-       [which-key-popup]
-       [command-palette]
-       [search-surface]])))
+         [header]
+        
+         [:div.workspace
+          {:style {:display "flex"
+                   :flex "1"
+                   :overflow "hidden"}}
+         
+          ;; 1. Workflow Nav (Activity Bar)
+          [workflow-nav route]
+         
+          ;; 2. Left Pane (Explorer)
+          (when show-left-pane?
+            [resizable-pane
+             {:width (if compact-layout?
+                       (min @left-width 220)
+                       @left-width)
+              :min-width 150
+              :max-width (if compact-layout? 280 500)
+              :direction :left
+              :on-resize (fn [w]
+                           (reset! left-width w)
+                           (persistence/save-state! KEY_LEFT_PANE_WIDTH w))
+              :style {:border-right "1px solid var(--border)"}
+              :children [left-sidebar]}])
+         
+          ;; 3. Main Area (Editor)
+          [:div.main-area
+           {:style {:flex "1"
+                    :display "flex"
+                    :flex-direction "column"
+                    :min-width "0" ;; Prevent flex overflow
+                    :background-color "var(--bg-primary)"}}
+           children]
+         
+          ;; 4. Inspector Pane (Right)
+          (when show-right-pane?
+            [resizable-pane
+             {:width @right-width
+              :min-width 200
+              :max-width 600
+              :direction :right
+              :on-resize (fn [w]
+                           (reset! right-width w)
+                           (persistence/save-state! KEY_RIGHT_PANE_WIDTH w))
+              :style {:border-left "1px solid var(--border)"}
+              :children [inspector-pane]}])]
+        
+         [status-bar]
+         [which-key-popup]
+         [command-palette]
+         [search-surface]]))))

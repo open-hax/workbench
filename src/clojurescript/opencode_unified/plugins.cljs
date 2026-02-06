@@ -1,12 +1,7 @@
 (ns opencode-unified.plugins
   "Plugin system for Opencode Unified Editor"
   (:require [reagent.core :as r]
-            [clojure.string :as str]
-            [opencode-unified.state :as state]
-            [opencode-unified.buffers :as buffers]
-            [opencode-unified.keymap :as keymap]
-            [opencode-unified.ui :as ui]
-            [clojure.walk :as walk]))
+             [opencode-unified.state :as state]))
 
 ;; Plugin registry and state
 (defonce plugin-state
@@ -114,24 +109,14 @@
         (when-not (:valid validation)
           (throw (ex-info (:error validation) {:plugin plugin-metadata}))))
 
-       ;; Load plugin code (simplified for now - in real implementation would load from file)
-       (let [plugin-namespace (symbol (str "opencode-unified.plugins." (:name plugin-metadata)))]
-
-         ;; Try to require the plugin namespace
-         (try
-           ;; For now, skip dynamic require and create mock plugin
-           (catch js/Error e
-             ;; If plugin doesn't exist, create a mock plugin for demonstration
-             (println "Plugin namespace not found, creating mock plugin:" plugin-namespace)))
-
-        ;; Create plugin instance
-        (let [plugin-instance
-              {:id plugin-id
-               :namespace plugin-namespace
-               :hooks {}
-               :commands (:commands plugin-metadata [])
-               :config (:config plugin-metadata {})
-               :state :loaded}]
+       ;; Resolve plugin namespace based on plugin id metadata.
+       (let [plugin-namespace (symbol (str "opencode-unified.plugins." (:name plugin-metadata)))
+             plugin-instance {:id plugin-id
+                              :namespace plugin-namespace
+                              :hooks {}
+                              :commands (:commands plugin-metadata [])
+                              :config (:config plugin-metadata {})
+                              :state :loaded}]
 
           (swap! plugin-state assoc-in [:loaded-plugins plugin-id]
                  (merge (get-in @plugin-state [:loaded-plugins plugin-id])
@@ -147,8 +132,8 @@
             (swap! plugin-state update :plugin-commands concat
                    (map #(assoc % :plugin-id plugin-id) commands)))
 
-          (println "Plugin loaded:" plugin-id)
-          {:success true :plugin-id plugin-id}))
+         (println "Plugin loaded:" plugin-id)
+         {:success true :plugin-id plugin-id})
 
       (catch js/Error e
         (swap! plugin-state assoc-in [:loaded-plugins plugin-id :state] :error)
@@ -251,57 +236,12 @@
 (defn discover-plugins
   "Discover available plugins in the plugins directory"
   []
-  ;; For now, return some example plugins
-  ;; In a real implementation, this would scan the filesystem
-  [{:name "example-plugin"
-    :version "1.0.0"
-    :description "An example plugin for demonstration"
-    :author "Opencode Team"
-    :main "example_plugin.cljs"
-    :dependencies []
-    :permissions ["file-system"]
-    :hooks [:buffer-created :buffer-saved]
-    :commands [{:name "Example Command"
-                :description "An example command from the plugin"
-                :keys "SPC e e"
-                :handler identity}]
-    :config {:example-setting true}
-    :enabled true}
-
-   {:name "git-integration"
-    :version "1.0.0"
-    :description "Git integration plugin"
-    :author "Opencode Team"
-    :main "git_integration.cljs"
-    :dependencies ["git-js"]
-    :permissions ["file-system" "network"]
-    :hooks [:buffer-saved :workspace-loaded]
-    :commands [{:name "Git Status"
-                :description "Show git status"
-                :keys "SPC g s"
-                :handler identity}
-               {:name "Git Commit"
-                :description "Commit current changes"
-                :keys "SPC g c"
-                :handler identity}]
-    :config {:auto-commit false}
-    :enabled true}
-
-   {:name "lsp-client"
-    :version "1.0.0"
-    :description "Language Server Protocol client"
-    :author "Opencode Team"
-    :main "lsp_client.cljs"
-    :dependencies ["vscode-languageserver-protocol"]
-    :permissions ["network"]
-    :hooks [:buffer-created :editor-focused]
-    :commands [{:name "LSP Restart"
-                :description "Restart LSP server"
-                :keys "SPC l r"
-                :handler identity}]
-    :config {:servers {:clojure "clojure-lsp"
-                       :javascript "typescript-language-server"}}
-    :enabled true}])
+  (let [configured (some-> js/window
+                           (aget "__OPENCODE_PLUGINS__")
+                           (js->clj :keywordize-keys true))]
+    (if (vector? configured)
+      configured
+      [])))
 
 (defn initialize-plugin-system
   "Initialize the plugin system"

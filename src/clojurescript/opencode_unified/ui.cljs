@@ -133,10 +133,13 @@
                               (.preventDefault event)
                                (.stopPropagation event)
                                (.stopImmediatePropagation event)
-                               (if (= key "p")
-                                 (command-palette/handle-open-key!)
-                                 (state/open-search-surface!))))) ]
+                                (if (= key "p")
+                                  (command-palette/handle-open-key!)
+                                  (state/open-search-surface!))))) ]
     (.addEventListener js/window "keydown" handle-keydown true))
+
+  ;; Initialize OpenPlanner-backed activity feed.
+  (state/bootstrap-openplanner!)
 
   ;; Mount the React app
   (when-let [app-element (.getElementById js/document "app")]
