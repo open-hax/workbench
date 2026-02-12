@@ -373,15 +373,16 @@
 (defn pos-to-line-col
   "Convert buffer position to line and column numbers (0-based)"
   [content pos]
-  (let [before-pos (subs content 0 pos)
-        line-count (dec (count (str/split-lines before-pos)))]
-    (if (= line-count -1)
-      [0 0]
-      (let [last-line-start (str/last-index-of before-pos "\n")
-            col (if (nil? last-line-start)
-                  pos
-                  (- pos (inc last-line-start)))]
-        [line-count col]))))
+  (if (zero? pos)
+    [0 0]
+    (let [before-pos (subs content 0 pos)
+          ;; Count newlines directly to determine line number
+          line-count (count (filter #{\newline} before-pos))
+          last-line-start (str/last-index-of before-pos "\n")
+          col (if (nil? last-line-start)
+                pos
+                (- pos (inc last-line-start)))]
+      [line-count col])))
 
 (defn line-col-to-pos
   "Convert line and column numbers (0-based) to buffer position"
@@ -718,25 +719,43 @@
   [content pos]
   (let [word-chars "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
         content-len (count content)]
-    (loop [current-pos pos]
+    (loop [current-pos pos
+           phase :consume-word]
       (if (>= current-pos content-len)
         content-len
-        (let [char (get content current-pos)]
-          (if (str/includes? word-chars char)
-            (recur (inc current-pos))
-            current-pos))))))
+        (let [char (get content current-pos)
+              is-word? (str/includes? word-chars char)]
+          (case phase
+            :consume-word
+            (if is-word?
+              (recur (inc current-pos) :consume-word)
+              (recur current-pos :consume-space))
+            
+            :consume-space
+            (if (not is-word?)
+              (recur (inc current-pos) :consume-space)
+              current-pos)))))))
 
 (defn find-prev-word-boundary
   "Find the previous word boundary starting from pos"
   [content pos]
   (let [word-chars "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"]
-    (loop [current-pos (max 0 (dec pos))]
+    (loop [current-pos (dec pos)
+           phase :skip-space]
       (if (< current-pos 0)
         0
-        (let [char (get content current-pos)]
-          (if (str/includes? word-chars char)
-            (recur (dec current-pos))
-            (inc current-pos)))))))
+        (let [char (get content current-pos)
+              is-word? (str/includes? word-chars char)]
+          (case phase
+            :skip-space
+            (if (not is-word?)
+              (recur (dec current-pos) :skip-space)
+              (recur current-pos :consume-word))
+            
+            :consume-word
+            (if is-word?
+              (recur (dec current-pos) :consume-word)
+              (inc current-pos))))))))
 
 ;; Simplified key handlers for basic Evil mode
 (defn handle-normal-mode-key [e key]

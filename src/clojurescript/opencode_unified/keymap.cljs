@@ -74,7 +74,7 @@
                                                        "a" {:handler #(evil/append-after-cursor)}
                                                        "o" {:handler #(evil/open-line-below)}
                                                        "O" {:handler #(evil/open-line-above)}
-                                                       "dd" {:handler #(evil/delete-line)}
+                                                       "dd" {:handler #(evil/delete-current-line)}
                                                        "yy" {:handler #(evil/yank-line)}
                                                        "p" {:handler #(evil/paste-after)}
                                                        "P" {:handler #(evil/paste-before)}

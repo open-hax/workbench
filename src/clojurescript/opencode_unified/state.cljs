@@ -31,7 +31,7 @@
                                    :filter :all
                                    :view :list
                                    :page 1
-                                   :page-size 2} ;; :all, :errors, :info
+                                   :page-size 10} ;; :all, :errors, :info
                   :imports {:chatgpt {:file-path ""
                                       :job nil
                                       :status :idle
@@ -70,8 +70,15 @@
   ([] (load-openplanner-activity! nil))
   ([query]
    (let [safe-query (str/trim (or query ""))
-         request (if (str/blank? safe-query)
+         active-tab (get-in @app-state [:ui :search-surface :active-tab])
+         request (cond
+                   (str/blank? safe-query)
                    (openplanner/load-sessions-activity)
+
+                   (= active-tab :semantic)
+                   (openplanner/search-vector safe-query)
+
+                   :else
                    (openplanner/search-activity safe-query))]
      (-> request
          (.then (fn [items]
@@ -103,10 +110,10 @@
                (let [request (openplanner/fetch-job job-id)]
                  (-> request
                      (.then (fn [result]
-                              (let [job (:job result)
-                                    status (keyword (or (:status job) "idle"))]
-                                (apply-chatgpt-job-status! job)
-                                (when (#{:done :error} status)
+                               (let [job (:job result)
+                                     status (keyword (or (:status job) "idle"))]
+                                 (apply-chatgpt-job-status! job)
+                                (when (contains? #{:done :error} status)
                                   (stop-chatgpt-job-poll!)
                                   (load-openplanner-activity!)))))
                      (.catch (fn [error]
@@ -274,8 +281,9 @@
   [query]
   (swap! app-state assoc-in [:ui :search-surface :query] query)
   (swap! app-state assoc-in [:ui :search-surface :page] 1)
-  (when (= :sessions (get-in @app-state [:ui :search-surface :active-tab]))
-    (load-openplanner-activity! query)))
+  (let [active-tab (get-in @app-state [:ui :search-surface :active-tab])]
+    (when (contains? #{:sessions :semantic} active-tab)
+      (load-openplanner-activity! query))))
 
 (defn set-search-tab!
   "Set search surface active tab"
@@ -284,8 +292,7 @@
   (swap! app-state assoc-in [:ui :search-surface :page] 1)
   (swap! app-state assoc-in [:ui :inspector :selection] nil)
   (swap! app-state assoc-in [:ui :inspector :context] [])
-  (when (= tab :sessions)
-    (load-openplanner-activity! (get-in @app-state [:ui :search-surface :query]))))
+  (load-openplanner-activity! (get-in @app-state [:ui :search-surface :query])))
 
 (defn set-search-filter!
   "Set search surface filter"
@@ -438,28 +445,30 @@
 
     ;; Web environment - use localStorage or fetch
     (try
-      (let [workspace-key (str "workspace-" (hash workspace-path))
-             stored-data (.getItem ^js js/localStorage workspace-key)]
-        (if stored-data
-          (let [workspace-data (-> stored-data js/JSON.parse (js->clj :keywordize-keys true))]
-            ;; Restore state similar to Electron version
-            (when (:buffers workspace-data)
-              (doseq [buffer-data (:buffers workspace-data)]
-                (let [buffer (create-buffer (:id buffer-data) (:content buffer-data) buffer-data)]
-                  (add-buffer! buffer))))
+      (if-let [storage (some-> js/window (aget "localStorage"))]
+        (let [workspace-key (str "workspace-" (hash workspace-path))
+              stored-data (.getItem storage workspace-key)]
+          (if stored-data
+            (let [workspace-data (-> stored-data js/JSON.parse (js->clj :keywordize-keys true))]
+              ;; Restore state similar to Electron version
+              (when (:buffers workspace-data)
+                (doseq [buffer-data (:buffers workspace-data)]
+                  (let [buffer (create-buffer (:id buffer-data) (:content buffer-data) buffer-data)]
+                    (add-buffer! buffer))))
 
-            (when (:current-buffer workspace-data)
-              (set-current-buffer! (:current-buffer workspace-data)))
+              (when (:current-buffer workspace-data)
+                (set-current-buffer! (:current-buffer workspace-data)))
 
-            (when (:ui workspace-data)
-              (swap! app-state update :ui merge (:ui workspace-data)))
+              (when (:ui workspace-data)
+                (swap! app-state update :ui merge (:ui workspace-data)))
 
-            (when (:evil-state workspace-data)
-              (swap! app-state update :evil-state merge (:evil-state workspace-data)))
+              (when (:evil-state workspace-data)
+                (swap! app-state update :evil-state merge (:evil-state workspace-data)))
 
-            (println "Workspace loaded from localStorage")
-            {:success true})
-          {:success false :error "No workspace found in storage"}))
+              (println "Workspace loaded from localStorage")
+              {:success true})
+            {:success false :error "No workspace found in storage"}))
+        {:success false :error "localStorage unavailable"})
       (catch js/Error e
         (println "Error loading workspace from localStorage:" (.-message e))
         {:success false :error (.-message e)}))))
@@ -507,11 +516,13 @@
 
       ;; Web environment - use localStorage
       (try
-        (let [workspace-key (str "workspace-" (hash workspace-path))
-              json-data (js/JSON.stringify (clj->js workspace-data) nil 2)]
-           (.setItem ^js js/localStorage workspace-key json-data)
-          (println "Workspace saved to localStorage")
-          {:success true})
+        (if-let [storage (some-> js/window (aget "localStorage"))]
+          (let [workspace-key (str "workspace-" (hash workspace-path))
+                json-data (js/JSON.stringify (clj->js workspace-data) nil 2)]
+            (.setItem storage workspace-key json-data)
+            (println "Workspace saved to localStorage")
+            {:success true})
+          {:success false :error "localStorage unavailable"})
         (catch js/Error e
           (println "Error saving workspace to localStorage:" (.-message e))
           {:success false :error (.-message e)})))))

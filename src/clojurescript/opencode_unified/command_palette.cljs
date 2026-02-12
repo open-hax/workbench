@@ -194,7 +194,8 @@
      :title "Save Workspace Snapshot"
      :description "Save a lightweight workspace snapshot"
      :handler (fn []
-                 (.setItem ^js js/localStorage "opencode.workbench.last-save" (.toISOString (js/Date.)))
+                (when-let [storage (some-> js/window (aget "localStorage"))]
+                  (.setItem storage "opencode.workbench.last-save" (.toISOString (js/Date.))))
                 {:success true :message "Workspace snapshot saved"})
      :keywords ["save" "workspace"]}
     {:id "theme.toggle"

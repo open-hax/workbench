@@ -1,0 +1,9 @@
+{
+"version":3,
+"file":"module$src$clojurescript$mocks$opencode_cljs_client.js",
+"lineCount":5,
+"mappings":"AAAA;AAAA,IAAA,sDAAA;AAAA,QAAA,EAAA,CAAA;AAEMA,mDAAAA,CAAAA,OAAAA,CAAAA,oBAAAA,GAAuBA,EAAAA,IAAOA,EAClCC,aAAcA,KAAMD,EAANC,IAAYD,CAACA,CAAEE,GAAIF,gBAANA,EAAwBG,MAAOH,oBAA/BA,CAADA,CADQA,EAElCI,WAAYA,KAAMJ,EAANI,IAAaJ,IAFSA,EAGlCK,aAAcA,KAAML,EAANK,IAAYL,EAHQA,EAIlCM,WAAYA,KAAMN,EAANM,IAAaN,IAJSA,EAA9BA;;",
+"sources":["src/clojurescript/mocks/opencode_cljs_client.js"],
+"sourcesContent":["\"use strict\";\n\nconst createOpencodeClient = () => ({\n  listSessions: async () => [{ id: \"test-session-1\", title: \"First Test Session\" }],\n  getSession: async () => ({}),\n  listMessages: async () => [],\n  getMessage: async () => ({}),\n});\n\nmodule.exports = {\n  createOpencodeClient,\n};\n"],
+"names":["createOpencodeClient","listSessions","id","title","getSession","listMessages","getMessage"]
+}

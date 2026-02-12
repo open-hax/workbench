@@ -393,21 +393,27 @@
            (assoc :modified? true)))))
   (enter-insert-mode))
 
-(defn delete-line []
-  (state/update-current-buffer!
-   (fn [buffer]
-     (let [content (:content buffer)
-           cursor-pos (:cursor-pos buffer)
-           [line _] (buffers/pos-to-line-col content cursor-pos)
-           [start-pos end-pos] (or (buffers/get-line-range content line)
-                                   [0 (count content)])
-           deleted (subs content start-pos end-pos)
-           new-content (str (subs content 0 start-pos) (subs content end-pos))]
-       (state/set-evil-register! deleted)
-       (-> buffer
-           (assoc :content new-content)
-           (assoc :cursor-pos (min start-pos (count new-content)))
-           (assoc :modified? true))))))
+(defn delete-current-line []
+  (let [buffer (state/get-current-buffer)]
+    (when buffer
+      (let [content (:content buffer)
+            cursor-pos (:cursor-pos buffer)
+            [line _] (buffers/pos-to-line-col content cursor-pos)
+            [start-pos end-pos] (or (buffers/get-line-range content line)
+                                    [0 (count content)])
+            newline-pos (if (and (< end-pos (count content))
+                                 (= (get content end-pos) \newline))
+                          (inc end-pos)
+                          end-pos)
+            deleted (subs content start-pos newline-pos)
+            new-content (str (subs content 0 start-pos) (subs content newline-pos))]
+        (state/set-evil-register! deleted)
+        (state/update-current-buffer!
+         (fn [b]
+           (-> b
+               (assoc :content new-content)
+               (assoc :cursor-pos (min start-pos (count new-content)))
+               (assoc :modified? true))))))))
 
 (defn yank-line []
   (let [buffer (state/get-current-buffer)]
@@ -417,7 +423,11 @@
             [line _] (buffers/pos-to-line-col content cursor-pos)
             [start-pos end-pos] (or (buffers/get-line-range content line)
                                     [0 (count content)])
-            yanked (subs content start-pos end-pos)]
+            newline-pos (if (and (< end-pos (count content))
+                                 (= (get content end-pos) \newline))
+                          (inc end-pos)
+                          end-pos)
+            yanked (subs content start-pos newline-pos)]
         (state/set-evil-register! yanked)))))
 
 (defn- paste-register [before?]

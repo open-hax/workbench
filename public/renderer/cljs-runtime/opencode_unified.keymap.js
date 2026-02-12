@@ -74,7 +74,7 @@ return opencode_unified.evil.enter_visual_mode();
 })], null),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"handler","handler",-195596612),(function (){
 return opencode_unified.evil.search_backward();
 })], null),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"handler","handler",-195596612),(function (){
-return opencode_unified.evil.delete_line();
+return opencode_unified.evil.delete_current_line();
 })], null),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"handler","handler",-195596612),(function (){
 return opencode_unified.evil.append_after_cursor();
 })], null),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"handler","handler",-195596612),(function (){
@@ -145,14 +145,14 @@ var shift_QMARK_ = event.shiftKey;
 var meta_QMARK_ = event.metaKey;
 var base_key = ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(key," "))?"SPC":((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(key,"Spacebar"))?"SPC":((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(key,"Escape"))?"ESC":((((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((1),cljs.core.count(key))) && (cljs.core.not(shift_QMARK_))))?clojure.string.lower_case(key):key)
 )));
-var modifiers = (function (){var G__7004 = cljs.core.PersistentVector.EMPTY;
-var G__7004__$1 = (cljs.core.truth_(ctrl_QMARK_)?cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__7004,"Ctrl"):G__7004);
-var G__7004__$2 = (cljs.core.truth_(alt_QMARK_)?cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__7004__$1,"Alt"):G__7004__$1);
-var G__7004__$3 = (cljs.core.truth_(shift_QMARK_)?cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__7004__$2,"Shift"):G__7004__$2);
+var modifiers = (function (){var G__14922 = cljs.core.PersistentVector.EMPTY;
+var G__14922__$1 = (cljs.core.truth_(ctrl_QMARK_)?cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__14922,"Ctrl"):G__14922);
+var G__14922__$2 = (cljs.core.truth_(alt_QMARK_)?cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__14922__$1,"Alt"):G__14922__$1);
+var G__14922__$3 = (cljs.core.truth_(shift_QMARK_)?cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__14922__$2,"Shift"):G__14922__$2);
 if(cljs.core.truth_(meta_QMARK_)){
-return cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__7004__$3,"Meta");
+return cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__14922__$3,"Meta");
 } else {
-return G__7004__$3;
+return G__14922__$3;
 }
 })();
 if(cljs.core.seq(modifiers)){
@@ -198,10 +198,10 @@ return bindings;
 var key = cljs.core.first(remaining);
 var next_binding = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(bindings,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"bindings","bindings",1271397192),key], null));
 if(cljs.core.truth_(next_binding)){
-var G__7036 = next_binding;
-var G__7037 = cljs.core.rest(remaining);
-bindings = G__7036;
-remaining = G__7037;
+var G__14982 = next_binding;
+var G__14983 = cljs.core.rest(remaining);
+bindings = G__14982;
+remaining = G__14983;
 continue;
 } else {
 return null;
@@ -215,10 +215,10 @@ return cljs.core.get.cljs$core$IFn$_invoke$arity$2(evil_bindings,key_str);
 }
 });
 opencode_unified.keymap.execute_binding = (function opencode_unified$keymap$execute_binding(binding){
-var temp__5804__auto___7038 = new cljs.core.Keyword(null,"handler","handler",-195596612).cljs$core$IFn$_invoke$arity$1(binding);
-if(cljs.core.truth_(temp__5804__auto___7038)){
-var handler_7040 = temp__5804__auto___7038;
-(handler_7040.cljs$core$IFn$_invoke$arity$0 ? handler_7040.cljs$core$IFn$_invoke$arity$0() : handler_7040.call(null));
+var temp__5804__auto___14984 = new cljs.core.Keyword(null,"handler","handler",-195596612).cljs$core$IFn$_invoke$arity$1(binding);
+if(cljs.core.truth_(temp__5804__auto___14984)){
+var handler_14985 = temp__5804__auto___14984;
+(handler_14985.cljs$core$IFn$_invoke$arity$0 ? handler_14985.cljs$core$IFn$_invoke$arity$0() : handler_14985.call(null));
 } else {
 }
 
@@ -235,18 +235,18 @@ opencode_unified.keymap.handle_key_down = (function opencode_unified$keymap$hand
 var key = opencode_unified.keymap.normalize_key(event);
 var evil_mode = opencode_unified.state.get_evil_mode();
 var target = event.target;
-var target_tag = (function (){var G__7014 = target;
-if((G__7014 == null)){
+var target_tag = (function (){var G__14956 = target;
+if((G__14956 == null)){
 return null;
 } else {
-return G__7014.tagName;
+return G__14956.tagName;
 }
 })();
-var editable_target_QMARK_ = ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(target_tag,"TEXTAREA")) || (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(target_tag,"INPUT")) || (cljs.core.boolean$((function (){var G__7015 = target;
-if((G__7015 == null)){
+var editable_target_QMARK_ = ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(target_tag,"TEXTAREA")) || (((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(target_tag,"INPUT")) || (cljs.core.boolean$((function (){var G__14957 = target;
+if((G__14957 == null)){
 return null;
 } else {
-return G__7015.isContentEditable;
+return G__14957.isContentEditable;
 }
 })())))));
 var current_sequence = cljs.core.deref(opencode_unified.keymap.key_sequence);

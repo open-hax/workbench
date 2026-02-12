@@ -1,22 +1,22 @@
 # Electron Workbench
 
-Electron-based workbench combining TypeScript services, ClojureScript editor, and automation integration.
+Electron-based workbench with ClojureScript editor and OpenCode SDK integration.
 
 ## Overview
 
-This package consolidates three separate packages into a unified solution:
+This package provides the OpenCode Unified Workbench:
 
-- `@promethean-os/opencode-client` - TypeScript client library
-- `@promethean-os/dualstore-http` - HTTP server and API routes
-- `opencode-cljs-electron` - ClojureScript editor with Electron integration
+- **ClojureScript Editor**: Spacemacs-like editor interface with Reagent
+- **OpenCode SDK Integration**: Direct `@opencode-ai/sdk` client for session management
+- **Electron Integration**: Cross-platform desktop application
+- **Comprehensive Testing**: Unit, integration, and E2E test support
 
 ## Features
 
-- **TypeScript Server**: Fastify-based HTTP server with OpenCode APIs
-- **ClojureScript Editor**: Spacemacs-like editor interface
-- **Electron Integration**: Cross-platform desktop application
-- **Unified Build System**: Integrated TypeScript and ClojureScript compilation
-- **Comprehensive Testing**: Unit, integration, and E2E test support
+- **Chat Interface**: Real-time chat with OpenCode sessions
+- **Session Management**: Create, list, and manage OpenCode sessions
+- **Editor**: ClojureScript-based text editor with keybindings
+- **Activity Feed**: OpenPlanner integration for session activity tracking
 
 ## Quick Start
 
@@ -30,24 +30,11 @@ pnpm dev
 # Build for production
 pnpm build
 
-# Start the server
-pnpm start
-
 # Run Electron app
 pnpm start:electron
 ```
 
 ## Development
-
-### TypeScript Development
-
-```bash
-# Watch TypeScript compilation
-pnpm dev:typescript
-
-# Type checking
-pnpm typecheck
-```
 
 ### ClojureScript Development
 
@@ -65,42 +52,32 @@ pnpm typecheck:clojurescript
 # Run all tests
 pnpm test
 
-# Unit tests only
-pnpm test:unit
-
-# Integration tests
-pnpm test:integration
-
-# E2E tests
-pnpm test:e2e
-
 # Coverage report
 pnpm test:coverage
+
+# ClojureScript tests
+pnpm test:clojurescript
 ```
 
 ## Project Structure
 
 ```
 src/
-├── typescript/          # TypeScript source files
-│   ├── server/         # HTTP server (from dualstore-http)
-│   ├── client/         # Client library (from opencode-client)
-│   ├── shared/         # Shared TypeScript code
-│   └── electron/       # Electron main process
 ├── clojurescript/       # ClojureScript source files
-│   ├── editor/         # Editor components (from opencode-cljs-electron)
+│   ├── editor/         # Editor components
 │   ├── shared/         # Shared ClojureScript code
-│   └── electron/       # Electron renderer process
+│   ├── electron/      # Electron main process
+│   └── test/          # ClojureScript tests
 └── schemas/            # Shared schemas and types
 ```
 
 ## Configuration
 
-The package supports configuration through environment variables and config files:
+The package supports configuration through environment variables:
 
 - `NODE_ENV` - Environment (development/production/test)
-- `PORT` - Server port (default: 3000)
-- `HOST` - Server host (default: 0.0.0.0)
+- `OPENCODE_URL` - OpenCode API endpoint (default: http://localhost:8788/api/opencode)
+- `OPENCODE_API_KEY` - API authentication key
 
 ## License
 

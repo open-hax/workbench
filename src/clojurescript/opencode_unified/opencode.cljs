@@ -15,6 +15,9 @@
             :session-id nil
             :available-tools []
             :active-agents []
+            :chat-stream []
+            :pending-prompts {}
+            :pending-permissions {}
             :last-error nil}))
 
 ;; Tool execution tracking
@@ -114,6 +117,36 @@
         (.catch (fn [error]
                   {:error (.-message error)})))))
 
+(defn list-sessions
+  "List all Opencode sessions"
+  []
+  (let [client (ensure-client)]
+    (-> (.list (.-session client))
+        (.then sdk-response->result)
+        (.catch (fn [error]
+                  {:error (.-message error)})))))
+
+(defn delete-session
+  "Delete Opencode session"
+  [session-id]
+  (let [client (ensure-client)]
+    (-> (.delete (.-session client)
+                 (clj->js {:path {:id session-id}}))
+        (.then sdk-response->result)
+        (.catch (fn [error]
+                  {:error (.-message error)})))))
+
+(defn update-session
+  "Update Opencode session state"
+  [session-id updates]
+  (let [client (ensure-client)]
+    (-> (.update (.-session client)
+                 (clj->js {:path {:id session-id}
+                           :body updates}))
+        (.then sdk-response->result)
+        (.catch (fn [error]
+                  {:error (.-message error)})))))
+
 (defn join-session
   "Join existing Opencode session"
   [session-id]
@@ -128,7 +161,7 @@
 (defn list-available-tools
   "Get list of available Opencode tools"
   []
-  (let [client (ensure-client)
+  (let [client ^js (ensure-client)
         tool-api (.-tool client)]
     (-> (.call (aget tool-api "ids") tool-api (clj->js {}))
         (.then sdk-response->result)
@@ -160,7 +193,7 @@
              :status "running"
              :started-at (js/Date.)
              :options options})
-    (let [client (ensure-client)]
+    (let [client ^js (ensure-client)]
       (-> (ensure-session-id!)
           (.then (fn [session-id]
                    (.command (.-session client)
@@ -194,7 +227,7 @@
 (defn list-active-agents
   "Get list of active Opencode agents"
   []
-  (let [client (ensure-client)
+  (let [client ^js (ensure-client)
         app-api (.-app client)]
     (-> (.call (aget app-api "agents") app-api (clj->js {}))
         (.then sdk-response->result)
@@ -263,6 +296,46 @@
                     :session result})))
         (.catch (fn [error]
                   {:error (response-error error)})))))
+
+(defn use-session!
+  "Set active Opencode session"
+  [session-id]
+  (swap! opencode-state assoc :session-id session-id)
+  (js/Promise.resolve {:success true :session-id session-id}))
+
+(defn clear-chat-stream!
+  "Clear local chat stream"
+  []
+  (swap! opencode-state assoc :chat-stream []))
+
+(defn send-session-message
+  "Send message to active Opencode session"
+  [message]
+  (if-let [session-id (:session-id @opencode-state)]
+    (do
+      (swap! opencode-state update :chat-stream conj {:role "user" :content message})
+      (-> (send-agent-message session-id message)
+          (.then (fn [result]
+                   (if-let [error (:error result)]
+                     (swap! opencode-state update :chat-stream conj {:role "error" :content error})
+                     (let [response (or (:response result) result)
+                           text (if (string? response) response (get-in response [:data :parts 0 :text]))]
+                       (swap! opencode-state update :chat-stream conj {:role "assistant" :content (or text (str response))})))
+                   result))))
+    (js/Promise.resolve {:error "No active session"})))
+
+(defn respond-to-permission!
+  "Respond to a pending permission request"
+  [id _response]
+  ;; Response can be :once, :always, or :reject
+  (swap! opencode-state update :pending-permissions dissoc id)
+  (js/Promise.resolve {:success true}))
+
+(defn respond-to-control-prompt!
+  "Respond to a pending control prompt"
+  [id _response]
+  (swap! opencode-state update :pending-prompts dissoc id)
+  (js/Promise.resolve {:success true}))
 
 ;; File operations through Opencode
 (defn opencode-read-file

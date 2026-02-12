@@ -11,7 +11,9 @@ declare global {
         executeCommand: (command: string, params: any) => Promise<any>;
         listAgents: () => Promise<any[]>;
         createSession: (config: any) => Promise<any>;
+        deleteSession: (sessionId: string) => Promise<any>;
         listSessions: () => Promise<any[]>;
+        currentSessionId: string | null;
         sendMessage: (sessionId: string, message: any) => Promise<any>;
         listTools: () => Promise<any[]>;
         executeTool: (toolName: string, params: any) => Promise<any>;
@@ -50,6 +52,7 @@ export const test = base.extend<OpencodeFixtures>({
   page: async ({ page }, use) => {
     // Set up page-level configurations
     await page.setViewportSize({ width: 1200, height: 800 });
+
     await page.goto('/');
 
     // Wait for the application to load
@@ -64,6 +67,20 @@ export const test = base.extend<OpencodeFixtures>({
     );
 
     await use(page);
+
+    await page.evaluate(async () => {
+      if (window.opencodeApp && window.opencodeApp.opencode) {
+        const opencode = window.opencodeApp.opencode;
+        const currentId = opencode.currentSessionId;
+        if (currentId) {
+          try {
+            await opencode.deleteSession(currentId);
+          } catch (error) {
+            console.error(`Failed to cleanup initial session ${currentId}:`, error);
+          }
+        }
+      }
+    });
   },
 
   app: async ({ page }, use) => {
@@ -80,6 +97,13 @@ export const test = base.extend<OpencodeFixtures>({
 
         // Wait for ClojureScript to initialize
         await page.waitForTimeout(2000);
+
+        await page.waitForFunction(
+          () => {
+            return window.opencodeApp && window.opencodeApp.opencode && window.opencodeApp.opencode.connected;
+          },
+          { timeout: 10000 },
+        );
       },
 
       // Get current editor content
@@ -201,7 +225,7 @@ export const test = base.extend<OpencodeFixtures>({
       async getLayoutInfo() {
         return await page.evaluate(() => {
           const layout = {
-            sidebarVisible: !!document.querySelector('.sidebar'),
+            sidebarVisible: !!document.querySelector('.left-sidebar'),
             statusBarVisible: !!document.querySelector('.status-bar'),
             minimapVisible: !!document.querySelector('.minimap'),
             headerVisible: !!document.querySelector('.header'),
@@ -213,12 +237,12 @@ export const test = base.extend<OpencodeFixtures>({
             statusBarHeight: 0,
           };
 
-          const sidebar = document.querySelector('.sidebar');
+          const sidebar = document.querySelector('.left-sidebar');
           if (sidebar) {
             dimensions.sidebarWidth = sidebar.getBoundingClientRect().width;
           }
 
-          const editor = document.querySelector('.editor');
+          const editor = document.querySelector('.main-area');
           if (editor) {
             dimensions.editorWidth = editor.getBoundingClientRect().width;
           }

@@ -1,0 +1,9 @@
+{
+"version":3,
+"file":"module$src$clojurescript$mocks$opencode_sdk.js",
+"lineCount":14,
+"mappings":"AACOA,QAASA,kEAAoB,CAACC,MAAD,CAAS;AAC3C,SAAO,CACLC,QAAS,CACPC,KAAMA,QAAQ,EAAG;AAEf,WAAOC,OAAQC,CAAAA,OAAR,CAAgB,CACrBC,KAAM,CACJC,SAAU,CACR,CAAEC,GAAI,gBAAN,EAAwBC,MAAO,oBAA/B,CADQ,EAER,CAAEC,UAAW,gBAAb,EAA+BD,MAAO,qBAAtC,CAFQ,EAGR,CAAEE,UAAW,gBAAb,EAA+BF,MAAO,oBAAtC,CAHQ,CADN,CADe,CAAhB,CAAP;AAFe,GADV,EAaPG,OAAQA,QAAQ,EAAG;AAAE,WAAOR,OAAQC,CAAAA,OAAR,CAAgB,CAAEC,KAAM,CAAEE,GAAI,cAAN,CAAR,CAAhB,CAAP;AAAF,GAbZ,EAcPK,IAAKA,QAAQ,EAAG;AAAE,WAAOT,OAAQC,CAAAA,OAAR,CAAgB,CAAEC,KAAM,CAAEE,GAAI,cAAN,CAAR,CAAhB,CAAP;AAAF,GAdT,CADJ,CAAP;AAD2C;AAD7C;AAAA,IAAAM,8CAAA,EAAA;AACgBd;AAAAA,2CAAAA,CAAAA,oBAAAA,GAAAA,iEAAAA;;",
+"sources":["src/clojurescript/mocks/opencode_sdk.js"],
+"sourcesContent":["// Mock for @opencode-ai/sdk/client\nexport function createOpencodeClient(config) {\n  return {\n    session: {\n      list: function() {\n        // Return mock session data for testing\n        return Promise.resolve({\n          data: {\n            sessions: [\n              { id: \"test-session-1\", title: \"First Test Session\" },\n              { sessionID: \"test-session-2\", title: \"Second Test Session\" },\n              { sessionId: \"test-session-3\", title: \"Third Test Session\" }\n            ]\n          }\n        });\n      },\n      create: function() { return Promise.resolve({ data: { id: \"mock-session\" } }); },\n      get: function() { return Promise.resolve({ data: { id: \"mock-session\" } }); }\n    }\n  };\n}\n"],
+"names":["createOpencodeClient","config","session","list","Promise","resolve","data","sessions","id","title","sessionID","sessionId","create","get","$jscomp$tmp$exports$module$name"]
+}

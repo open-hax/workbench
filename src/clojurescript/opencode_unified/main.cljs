@@ -60,18 +60,43 @@
     (println "Running in web mode - some Electron features will be unavailable"))
 
   ;; Expose app state for testing
-  (set! (.-opencodeApp js/window)
-        #js {:initialized true
-             :plugins #js {}
-             :opencode #js {:connected false}})
+  (let [opencode-api #js {:executeCommand (fn [cmd params] (-> (opencode/execute-tool cmd params) (.then clj->js)))
+                          :listAgents (fn [] (-> (opencode/list-active-agents)
+                                                (.then (fn [res] (clj->js (or (:agents res) res))))))
+                          :createSession (fn [config] (-> (opencode/create-session) (.then clj->js)))
+                          :deleteSession (fn [id] (-> (opencode/delete-session id) (.then clj->js)))
+                          :listSessions (fn [] (-> (opencode/list-sessions)
+                                                  (.then (fn [res] (clj->js (or (:sessions res) res))))))
+                          :sendMessage (fn [id msg] (-> (opencode/send-agent-message id (:content (js->clj msg :keywordize-keys true))) (.then clj->js)))
+                          :listTools (fn [] (-> (opencode/list-available-tools)
+                                               (.then (fn [res] (clj->js (or (:tools res) res))))))
+                          :executeTool (fn [name params] (-> (opencode/execute-tool name params) (.then clj->js)))
+                          :listFiles (fn [path] (js/Promise.resolve #js []))
+                          :on (fn [event handler] nil)
+                          :updateSession (fn [id updates] (-> (opencode/update-session id (js->clj updates :keywordize-keys true)) (.then clj->js)))
+                          :getDebugInfo (fn [] (js/Promise.resolve (clj->js (merge (opencode/get-opencode-state)
+                                                                                  {:version "1.0.0"
+                                                                                   :connectionStatus "connected"
+                                                                                   :activeSessions 0}))))}]
+    (js/Object.defineProperty opencode-api "connected"
+                              #js {:get (fn [] (:connected? (opencode/get-opencode-state)))
+                                   :enumerable true})
+    (js/Object.defineProperty opencode-api "currentSessionId"
+                              #js {:get (fn [] (:session-id (opencode/get-opencode-state)))
+                                   :enumerable true})
+    (set! (.-opencodeApp js/window)
+          #js {:initialized true
+               :plugins #js {}
+               :opencode opencode-api}))
 
   (println "Opencode started successfully!"))
 
 ;; Start the app when DOM is ready
-(if (and js/document
-         (not= (.-readyState js/document) "loading"))
-  (init)
-  (.addEventListener js/document "DOMContentLoaded" init))
+(when (exists? js/document)
+  (if (and js/document
+           (not= (.-readyState js/document) "loading"))
+    (init)
+    (.addEventListener js/document "DOMContentLoaded" init)))
 
 ;; Hot module replacement support
 (defn ^:export reload []

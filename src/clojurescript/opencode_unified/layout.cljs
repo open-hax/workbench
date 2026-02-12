@@ -2,6 +2,7 @@
   (:require [reagent.core :as r]
             [opencode-unified.state :as state]
             [opencode-unified.buffers :as buffers]
+            [opencode-unified.opencode :as opencode]
             [opencode-unified.workspace :as workspace]
             [opencode-unified.command-palette :as command-palette]
             [opencode-unified.persistence :as persistence]
@@ -9,8 +10,10 @@
 
 ;; --- Persistence Keys ---
 (def KEY_LEFT_PANE_WIDTH "workbench.layout.leftPaneWidth")
+(def KEY_SESSIONS_PANE_WIDTH "workbench.layout.sessionsPaneWidth")
 (def KEY_RIGHT_PANE_WIDTH "workbench.layout.rightPaneWidth")
 (def KEY_INSPECTOR_VISIBLE "workbench.layout.inspectorVisible")
+(def KEY_SESSIONS_VISIBLE "workbench.layout.sessionsVisible")
 (def KEY_COMPACT_MODE "settings.compactMode")
 
 (def ROUTE_HOME "#/")
@@ -55,9 +58,7 @@
                            :position "relative"
                            :display "flex"
                            :flex-direction "column"}
-                          style)}
-           children
-
+                           style)}
            children
 
            ;; Resize Handle
@@ -501,16 +502,40 @@
          "×"]])]))
 
 (defn- testid-safe [value]
-  (-> (if (keyword? value) (name value) (str value))
+  (-> (if (keyword? value) (str (namespace value) "-" (name value)) (str value))
       (str/lower-case)
       (str/replace #"[^a-z0-9]+" "-")
-      (str/replace #"(^-+|-+$)" "")))
+      (str/replace #"(^-+|-+$)" "")
+      (str/replace #"^-" "")))
 
 (defn- selection-result-testid [item]
   (str "result-select-"
        (testid-safe (or (:type item) "item"))
        "-"
        (testid-safe (or (:id item) (:title item) "unknown"))))
+
+(defn- session-id-of [item]
+  (or (:session-id item) (:session item)))
+
+(defn- session-item? [item]
+  (boolean (session-id-of item)))
+
+(defn- session-title-of [item]
+  (or (:session-title item) (:title item) "OpenCode Session"))
+
+(defn- open-session-in-chat! [item]
+  (if-let [session-id (session-id-of item)]
+    (-> (opencode/use-session! session-id)
+        (.then (fn [result]
+                 (if-let [error (:error result)]
+                   (state/update-statusbar! "NORMAL" "" (str "Failed to open session in chat: " error))
+                   (state/update-statusbar! "NORMAL" "" (str "Opened session " session-id " in chat"))))))
+    (state/update-statusbar! "NORMAL" "" "Selected item has no session ID")))
+
+(defn- open-session-in-inspector! [item sorted-items]
+  (state/set-inspector-selection!
+   item
+   (remove (fn [candidate] (= (:id candidate) (:id item))) sorted-items)))
 
 (defn- pinned-tab-testid [entity-key]
   (str "inspector-compare-tab-" (testid-safe entity-key)))
@@ -725,10 +750,23 @@
                         :border "1px solid var(--border)"
                         :border-radius "6px"
                         :background "var(--bg-tertiary)"}}
-               [:div {:style {:font-size "0.75rem" :color "var(--text-dim)"}} "Detail"]
-               [:div {:style {:margin-top "0.5rem" :color "var(--text-primary)"}}
-                (or (:title active-selection) "")]
-                (when-let [time-value (:time active-selection)]
+                [:div {:style {:font-size "0.75rem" :color "var(--text-dim)"}} "Detail"]
+                [:div {:style {:margin-top "0.5rem" :color "var(--text-primary)" :font-weight "600"}}
+                 (or (:title active-selection) "")]
+                (when-let [text (:text active-selection)]
+                  [:div {:style {:margin-top "0.75rem" 
+                                 :color "var(--text-secondary)"
+                                 :white-space "pre-wrap"
+                                 :font-family "monospace"
+                                 :font-size "0.8rem"
+                                 :max-height "300px"
+                                 :overflow-y "auto"
+                                 :padding "0.5rem"
+                                 :background "var(--bg-primary)"
+                                 :border "1px solid var(--border)"
+                                 :border-radius "4px"}}
+                   text])
+                 (when-let [time-value (:time active-selection)]
                   [:div {:style {:margin-top "0.5rem" :font-size "0.75rem"}}
                    (str "Observed " time-value)])]
                [:div
@@ -771,6 +809,7 @@
 
      ;; Left section
      [:div.status-left
+      {:data-testid "mode-indicator"}
       @left-text]
 
      ;; Center section
@@ -1030,47 +1069,87 @@
        [:div.no-results 
         {:style {:padding "1rem" :text-align "center" :color "var(--text-dim)"}}
         "No activity found"]
-       (if (= view-mode :table)
-         [:div
-          {:style {:display "grid"
-                   :grid-template-columns "minmax(0, 1fr) auto"
-                   :gap "0.25rem"
-                   :padding "0.5rem"}}
+        (if (= view-mode :table)
+          [:div
+           {:style {:display "grid"
+                    :grid-template-columns "minmax(0, 1fr) auto"
+                    :gap "0.25rem"
+                    :padding "0.5rem"}}
+           (for [item page-items]
+             ^{:key (:id item)}
+             [:<>
+              [:button
+                {:data-testid "result-item"
+                 :data-select-testid (selection-result-testid item)
+                 :on-click #(if (session-item? item)
+                              (open-session-in-chat! item)
+                              (open-session-in-inspector! item sorted-items))
+                :style {:text-align "left"
+                        :padding "0.6rem"
+                        :border "1px solid var(--border)"
+                        :border-radius "4px"
+                        :background "var(--bg-primary)"
+                        :color "var(--text-primary)"
+                        :cursor "pointer"}}
+               (if (session-item? item)
+                 [:div
+                  {:style {:display "flex" :flex-direction "column" :gap "0.25rem"}}
+                  [:span
+                   {:style {:font-weight "600" :color "var(--text-primary)"}}
+                   (session-title-of item)]
+                   [:span
+                    {:style {:font-size "0.7rem"
+                             :color "var(--text-dim)"
+                             :background "var(--bg-tertiary)"
+                             :padding "0.1rem 0.35rem"
+                             :border-radius "999px"
+                             :display "inline-flex"
+                             :width "fit-content"}}
+                    (session-id-of item)]]
+                  [:div
+                   {:style {:display "flex" :flex-direction "column" :gap "0.25rem"}}
+                   [:span {:style {:font-weight "500"}} (:title item)]
+                   (when (:snippet item)
+                     [:span {:style {:font-size "0.75rem" :color "var(--text-secondary)"
+                                     :white-space "nowrap" :overflow "hidden" :text-overflow "ellipsis"}}
+                      (:snippet item)])])]
+              [:div
+               {:style {:font-size "0.75rem"
+                        :color "var(--text-dim)"
+                        :align-self "center"
+                        :padding-right "0.25rem"
+                        :display "flex"
+                        :align-items "center"
+                        :gap "0.35rem"}}
+               (when (session-item? item)
+                 [:button
+                  {:type "button"
+                   :data-testid "result-open-inspector"
+                   :on-click (fn [e]
+                               (.preventDefault e)
+                               (.stopPropagation e)
+                               (open-session-in-inspector! item sorted-items))
+                   :style {:padding "0.2rem 0.35rem"
+                           :font-size "0.68rem"
+                           :border "1px solid var(--border)"
+                           :border-radius "4px"
+                           :background "var(--bg-secondary)"
+                           :color "var(--text-secondary)"
+                           :cursor "pointer"}}
+                  "Inspector"])
+               (:time item)]])]
           (for [item page-items]
             ^{:key (:id item)}
-            [:<>
-             [:button
-               {:data-testid "result-item"
-                :data-select-testid (selection-result-testid item)
-                :on-click #(state/set-inspector-selection!
-                            item
-                            (remove (fn [candidate] (= (:id candidate) (:id item))) sorted-items))
-               :style {:text-align "left"
-                       :padding "0.6rem"
-                       :border "1px solid var(--border)"
-                       :border-radius "4px"
-                       :background "var(--bg-primary)"
-                       :color "var(--text-primary)"
-                       :cursor "pointer"}}
-              (:title item)]
-             [:div
-              {:style {:font-size "0.75rem"
-                       :color "var(--text-dim)"
-                       :align-self "center"
-                       :padding-right "0.25rem"}}
-              (:time item)]])]
-         (for [item page-items]
-           ^{:key (:id item)}
-            [:div.result-item
-             {:data-testid (if (= (:type item) :error) "result-error" "result-item")
-              :data-select-testid (selection-result-testid item)
-              :on-click #(state/set-inspector-selection!
-                          item
-                          (remove (fn [candidate] (= (:id candidate) (:id item))) sorted-items))
-             :style {:padding "0.75rem"
-                     :border-radius "4px"
-                     :cursor "pointer"
-                     :display "flex"
+             [:div.result-item
+              {:data-testid (if (= (:type item) :error) "result-error" "result-item")
+               :data-select-testid (selection-result-testid item)
+               :on-click #(if (session-item? item)
+                            (open-session-in-chat! item)
+                            (open-session-in-inspector! item sorted-items))
+              :style {:padding "0.75rem"
+                      :border-radius "4px"
+                      :cursor "pointer"
+                      :display "flex"
                      :align-items "center"
                      :gap "0.75rem"
                      :background-color (if (= (:type item) :error) "rgba(255, 0, 0, 0.1)" "transparent")
@@ -1083,15 +1162,54 @@
                :info "🔵"
                "•")]
 
-            [:div.result-content
-             {:style {:flex "1"}}
-             [:div.result-title
-              {:style {:font-weight "500" :color "var(--text-primary)"}}
-              (:title item)]
-             [:div.result-time
-              {:style {:font-size "0.8rem" :color "var(--text-dim)"}}
-              (:time item)]]]))
-       )
+              [:div.result-content
+               {:style {:flex "1"}}
+               [:div.result-title
+                {:style {:font-weight "500" :color "var(--text-primary)"}}
+                (if (session-item? item)
+                  (session-title-of item)
+                  (:title item))]
+               (when (session-item? item)
+                 [:div
+                  {:style {:font-size "0.7rem"
+                           :color "var(--text-dim)"
+                           :margin-top "0.25rem"
+                           :display "inline-flex"
+                           :background "var(--bg-tertiary)"
+                           :padding "0.08rem 0.35rem"
+                           :border-radius "999px"}}
+                  (session-id-of item)])
+               (when (and (:snippet item) (not (session-item? item)))
+                 [:div.result-snippet
+                  {:style {:font-size "0.8rem"
+                           :color "var(--text-secondary)"
+                           :margin-top "0.35rem"
+                           :white-space "pre-wrap"
+                           :display "-webkit-box"
+                           :-webkit-line-clamp "3"
+                           :-webkit-box-orient "vertical"
+                           :overflow "hidden"}}
+                  (:snippet item)])
+               [:div.result-time
+                {:style {:font-size "0.8rem" :color "var(--text-dim)" :margin-top "0.25rem"}}
+                (:time item)]]
+             (when (session-item? item)
+               [:button
+                {:type "button"
+                 :data-testid "result-open-inspector"
+                 :on-click (fn [e]
+                             (.preventDefault e)
+                             (.stopPropagation e)
+                             (open-session-in-inspector! item sorted-items))
+                 :style {:padding "0.2rem 0.4rem"
+                         :font-size "0.68rem"
+                         :border "1px solid var(--border)"
+                         :border-radius "4px"
+                         :background "var(--bg-secondary)"
+                         :color "var(--text-secondary)"
+                         :cursor "pointer"}}
+                "Inspector"])]))
+        )
 
      [pagination-controls visible-page total-pages]]))
 
@@ -1105,7 +1223,7 @@
              filter-type (:filter @search-state :all)
              view-mode (:view @search-state :list)
              page (:page @search-state 1)
-             page-size (:page-size @search-state 2)
+              page-size (:page-size @search-state 10)
              
               other-results (let [items @activity-items]
                               (case active-tab
@@ -1122,6 +1240,7 @@
                                 :memories (->> items
                                                (filter (fn [item]
                                                          (or (= (:kind item) "memory")
+                                                             (= (:kind item) "vector.result")
                                                              (str/includes? (str/lower-case (or (:title item) "")) "memory"))))
                                                (map-indexed (fn [idx item]
                                                               {:id (or (:id item) (str "memory-" idx))
@@ -1139,12 +1258,15 @@
                                                             :title (:title item)
                                                             :desc (or (:snippet item) (:source item))}))
                                             vec)
-                                []))
-             searched-other-results (if (str/blank? query)
-                                      other-results
-                                      (filter #(str/includes? (str/lower-case (:title %))
-                                                              (str/lower-case query))
-                                              other-results))
+                                 []))
+              semantic-results (if (= active-tab :semantic)
+                                 @activity-items
+                                 [])
+              searched-other-results (if (str/blank? query)
+                                       other-results
+                                       (filter #(str/includes? (str/lower-case (:title %))
+                                                               (str/lower-case query))
+                                               other-results))
              total-other-pages (max 1 (js/Math.ceil (/ (count searched-other-results) (max 1 page-size))))
              visible-other-page (min page total-other-pages)
              paged-other-results (paginate-items searched-other-results visible-other-page page-size)]
@@ -1156,24 +1278,24 @@
                   :height "100%"
                   :background-color "var(--bg-tertiary)"}}
 
-         ;; Search Input
-         [:div.search-header
-          {:style {:padding "1rem"
-                   :border-bottom "1px solid var(--border)"}}
-          [:input.search-input
-           {:value query
-            :data-testid "search-input"
-            :on-change #(state/set-search-query! (-> % .-target .-value))
-            :placeholder "Search..."
-            :auto-focus true
-            :style {:width "100%"
-                    :padding "0.75rem"
-                    :border "1px solid var(--border)"
-                    :border-radius "4px"
-                    :background-color "var(--bg-primary)"
-                    :color "var(--text-primary)"
-                     :font-size "1.1rem"
-                     :outline "none"}}]]
+          ;; Search Input
+          [:div.search-header
+           {:style {:padding "0.75rem"
+                    :border-bottom "1px solid var(--border)"}}
+           [:input.search-input
+            {:value query
+             :data-testid "search-input"
+             :on-change #(state/set-search-query! (-> % .-target .-value))
+             :placeholder "Search..."
+             :auto-focus true
+             :style {:width "100%"
+                     :padding "0.5rem"
+                     :border "1px solid var(--border)"
+                     :border-radius "4px"
+                     :background-color "var(--bg-primary)"
+                     :color "var(--text-primary)"
+                      :font-size "0.9rem"
+                      :outline "none"}}]]
 
           (when-let [backend-state (get-in @state/app-state [:ui :backend :openplanner])]
             [:div
@@ -1187,42 +1309,43 @@
                     (when-let [backend-error (:last-error backend-state)]
                       (str " • " backend-error))))])
 
-         ;; Tabs
-         [:div.search-tabs
-          {:data-testid "search-tabs"
-           :style {:display "flex"
-                   :padding "0 1rem"
-                   :border-bottom "1px solid var(--border)"
-                   :background-color "var(--bg-secondary)"}}
-          
-          (for [tab [:sessions :docs :memories :tools]]
-            ^{:key tab}
-            [:div.search-tab
-             {:data-testid (str "tab-" (name tab))
-              :on-click #(state/set-search-tab! tab)
-              :style {:padding "0.75rem 1rem"
-                      :cursor "pointer"
-                      :color (if (= active-tab tab) "var(--accent)" "var(--text-secondary)")
-                      :border-bottom (if (= active-tab tab) "2px solid var(--accent)" "2px solid transparent")
-                      :font-weight (if (= active-tab tab) "600" "400")
-                      :text-transform "capitalize"}}
-             (name tab)])]
-
-         ;; Results
-           [:div.search-results
-            {:data-testid "search-results"
-             :style {:padding "0.5rem"
-                     :overflow-y "auto"
-                     :flex "1"}}
-
-            (when (= active-tab :tools)
-              [chatgpt-import-panel])
+          ;; Tabs
+          [:div.search-tabs
+           {:data-testid "search-tabs"
+            :style {:display "flex"
+                    :padding "0 1rem"
+                    :border-bottom "1px solid var(--border)"
+                    :background-color "var(--bg-secondary)"}}
            
-           (if (= active-tab :sessions)
-             [activity-list @activity-items query filter-type view-mode page page-size]
-             
-             ;; Render other results
-             (if (empty? paged-other-results)
+           (for [tab [:sessions :semantic :docs :memories :tools]]
+             ^{:key tab}
+             [:div.search-tab
+              {:data-testid (str "tab-" (name tab))
+               :on-click #(state/set-search-tab! tab)
+               :style {:padding "0.5rem 0.75rem"
+                       :cursor "pointer"
+                       :font-size "0.8rem"
+                       :color (if (= active-tab tab) "var(--accent)" "var(--text-secondary)")
+                       :border-bottom (if (= active-tab tab) "2px solid var(--accent)" "2px solid transparent")
+                       :font-weight (if (= active-tab tab) "600" "400")
+                       :text-transform "capitalize"}}
+              (name tab)])]
+
+          ;; Results
+            [:div.search-results
+             {:data-testid "search-results"
+              :style {:padding "0.5rem"
+                      :overflow-y "auto"
+                      :flex "1"}}
+
+             (when (= active-tab :tools)
+               [chatgpt-import-panel])
+            
+            (if (or (= active-tab :sessions) (= active-tab :semantic))
+              [activity-list @activity-items (if (= active-tab :semantic) "" query) filter-type view-mode page page-size]
+              
+              ;; Render other results
+              (if (empty? paged-other-results)
                [:div.no-results
                 {:style {:padding "2rem" :text-align "center" :color "var(--text-dim)"}}
                 "No results found"]
@@ -1262,8 +1385,8 @@
                       {:style {:font-size "0.85rem" :color "var(--text-secondary)"}}
                       (:desc item)])]])))
 
-           (when (not= active-tab :sessions)
-             [pagination-controls visible-other-page total-other-pages])]]))))
+            (when (not (contains? #{:sessions :semantic} active-tab))
+              [pagination-controls visible-other-page total-other-pages])]]))))
 
 ;; --- Search Surface ---
 (defn search-surface []
@@ -1292,74 +1415,122 @@
          
          [search-content]]))))
 
+(defonce layout-state
+  (r/atom {:left-pane-width (persistence/load-state KEY_LEFT_PANE_WIDTH 220)
+           :sessions-pane-width (persistence/load-state KEY_SESSIONS_PANE_WIDTH 350)
+           :right-pane-width (persistence/load-state KEY_RIGHT_PANE_WIDTH 300)
+           :sessions-visible? (persistence/load-state KEY_SESSIONS_VISIBLE true)
+           :inspector-visible? (persistence/load-state KEY_INSPECTOR_VISIBLE true)}))
+
+(defn toggle-sessions-pane! []
+  (let [new-val (not (:sessions-visible? @layout-state))]
+    (swap! layout-state assoc :sessions-visible? new-val)
+    (persistence/save-state! KEY_SESSIONS_VISIBLE new-val)))
+
+(defn toggle-inspector-pane! []
+  (let [new-val (not (:inspector-visible? @layout-state))]
+    (swap! layout-state assoc :inspector-visible? new-val)
+    (persistence/save-state! KEY_INSPECTOR_VISIBLE new-val)))
+
 ;; --- Unified Shell ---
 (defn shell [_route _children]
-  (let [left-width (r/atom (persistence/load-state KEY_LEFT_PANE_WIDTH 250))
-        right-width (r/atom (persistence/load-state KEY_RIGHT_PANE_WIDTH 300))
-        inspector-visible (r/atom (persistence/load-state KEY_INSPECTOR_VISIBLE true))]
-    
-    (fn [route children]
-      (let [viewport-width (.-innerWidth js/window)
-            compact-layout? (< viewport-width 1100)
-            narrow-layout? (< viewport-width 820)
-            show-left-pane? (not narrow-layout?)
-            show-right-pane? (and @inspector-visible (not compact-layout?))]
-        [:div.shell
-         {:style {:display "flex"
+  (fn [route children]
+    (let [{:keys [left-pane-width sessions-pane-width right-pane-width sessions-visible? inspector-visible?]} @layout-state
+          viewport-width (.-innerWidth js/window)
+          compact-layout? (< viewport-width 1100)
+          narrow-layout? (< viewport-width 820)
+          show-left-pane? (not narrow-layout?)
+          show-sessions-pane? (and sessions-visible? (not narrow-layout?))
+          show-right-pane? (and inspector-visible? (not compact-layout?))]
+      [:div.shell
+       {:role "application"
+        :tabIndex "0"
+        :style {:display "flex"
+                :flex-direction "column"
+                :height "100vh"
+                :width "100vw"
+                :background-color "var(--bg-primary)"
+                :color "var(--text-primary)"}}
+      
+       [header]
+      
+       [:div.workspace
+        {:style {:display "flex"
+                 :flex "1"
+                 :overflow "hidden"}}
+       
+        ;; 1. Workflow Nav (Activity Bar)
+        [workflow-nav route]
+       
+        ;; 2. Left Pane (Explorer)
+        (when show-left-pane?
+          [resizable-pane
+           {:width (if compact-layout?
+                     (min left-pane-width 200)
+                     left-pane-width)
+            :min-width 150
+            :max-width (if compact-layout? 250 400)
+            :direction :left
+            :on-resize (fn [w]
+                         (swap! layout-state assoc :left-pane-width w)
+                         (persistence/save-state! KEY_LEFT_PANE_WIDTH w))
+            :style {:border-right "1px solid var(--border)"}
+            :children [left-sidebar]}])
+        
+        ;; 2.5 Middle Pane (Sessions/Activity)
+        (when show-sessions-pane?
+          [resizable-pane
+           {:width (if compact-layout?
+                     (min sessions-pane-width 300)
+                     sessions-pane-width)
+            :min-width 250
+            :max-width (if compact-layout? 400 600)
+            :direction :left
+            :on-resize (fn [w]
+                         (swap! layout-state assoc :sessions-pane-width w)
+                         (persistence/save-state! KEY_SESSIONS_PANE_WIDTH w))
+            :style {:border-right "1px solid var(--border)"}
+            :children [search-content]}])
+       
+        ;; 3. Main Area (Editor)
+        [:div.main-area
+         {:style {:flex "1"
+                  :display "flex"
                   :flex-direction "column"
-                  :height "100vh"
-                  :width "100vw"
-                  :background-color "var(--bg-primary)"
-                  :color "var(--text-primary)"}}
-        
-         [header]
-        
-         [:div.workspace
-          {:style {:display "flex"
-                   :flex "1"
-                   :overflow "hidden"}}
-         
-          ;; 1. Workflow Nav (Activity Bar)
-          [workflow-nav route]
-         
-          ;; 2. Left Pane (Explorer)
-          (when show-left-pane?
-            [resizable-pane
-             {:width (if compact-layout?
-                       (min @left-width 220)
-                       @left-width)
-              :min-width 150
-              :max-width (if compact-layout? 280 500)
-              :direction :left
-              :on-resize (fn [w]
-                           (reset! left-width w)
-                           (persistence/save-state! KEY_LEFT_PANE_WIDTH w))
-              :style {:border-right "1px solid var(--border)"}
-              :children [left-sidebar]}])
-         
-          ;; 3. Main Area (Editor)
-          [:div.main-area
-           {:style {:flex "1"
-                    :display "flex"
-                    :flex-direction "column"
-                    :min-width "0" ;; Prevent flex overflow
-                    :background-color "var(--bg-primary)"}}
-           children]
-         
-          ;; 4. Inspector Pane (Right)
-          (when show-right-pane?
-            [resizable-pane
-             {:width @right-width
-              :min-width 200
-              :max-width 600
-              :direction :right
-              :on-resize (fn [w]
-                           (reset! right-width w)
-                           (persistence/save-state! KEY_RIGHT_PANE_WIDTH w))
-              :style {:border-left "1px solid var(--border)"}
-              :children [inspector-pane]}])]
-        
-         [status-bar]
-         [which-key-popup]
-         [command-palette]
-         [search-surface]]))))
+                  :min-width "0" ;; Prevent flex overflow
+                  :background-color "var(--bg-primary)"}}
+         children]
+       
+        ;; 4. Inspector Pane (Right)
+        (when show-right-pane?
+          [resizable-pane
+           {:width right-pane-width
+            :min-width 200
+            :max-width 600
+            :direction :right
+            :on-resize (fn [w]
+                         (swap! layout-state assoc :right-pane-width w)
+                         (persistence/save-state! KEY_RIGHT_PANE_WIDTH w))
+            :style {:border-left "1px solid var(--border)"}
+            :children [inspector-pane]}])]
+      
+       [status-bar]
+       [which-key-popup]
+       [command-palette]
+       [search-surface]])))
+
+(defn layout-commands []
+  [{:id "layout.toggle-sessions"
+    :title "Toggle Sessions Pane"
+    :description "Show/hide the sessions and activity side pane"
+    :handler (fn []
+               (toggle-sessions-pane!)
+               (command-palette/close!)
+               {:success true})}
+   {:id "layout.toggle-inspector"
+    :title "Toggle Inspector Pane"
+    :description "Show/hide the right inspector side pane"
+    :handler (fn []
+               (toggle-inspector-pane!)
+               (command-palette/close!)
+               {:success true})}])

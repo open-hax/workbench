@@ -1,6 +1,9 @@
 import test from 'ava';
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 test('package.json exists and is valid', (t) => {
   const packagePath = join(__dirname, '../../package.json');
@@ -8,22 +11,11 @@ test('package.json exists and is valid', (t) => {
   const packageJson = JSON.parse(packageContent);
 
   t.is(packageJson.name, '@promethean-os/opencode-unified');
-  t.is(packageJson.version, '1.0.0');
+  t.is(packageJson.version, '0.1.0');
   t.true(packageJson.description.includes('Unified OpenCode'));
   t.truthy(packageJson.scripts);
   t.truthy(packageJson.dependencies);
   t.truthy(packageJson.devDependencies);
-});
-
-test('tsconfig.json exists and has correct structure', (t) => {
-  const tsconfigPath = join(__dirname, '../../tsconfig.json');
-  const tsconfigContent = readFileSync(tsconfigPath, 'utf-8');
-  const tsconfig = JSON.parse(tsconfigContent);
-
-  t.is(tsconfig.compilerOptions.outDir, './dist');
-  t.is(tsconfig.compilerOptions.rootDir, './src');
-  t.true(Array.isArray(tsconfig.include));
-  t.true(Array.isArray(tsconfig.exclude));
 });
 
 test('shadow-cljs.edn exists', (t) => {

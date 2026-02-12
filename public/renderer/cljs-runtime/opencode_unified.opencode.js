@@ -2,7 +2,7 @@ goog.provide('opencode_unified.opencode');
 var module$node_modules$$opencode_ai$sdk$dist$client=shadow.js.require("module$node_modules$$opencode_ai$sdk$dist$client", {});
 if((typeof opencode_unified !== 'undefined') && (typeof opencode_unified.opencode !== 'undefined') && (typeof opencode_unified.opencode.opencode_state !== 'undefined')){
 } else {
-opencode_unified.opencode.opencode_state = reagent.core.atom.cljs$core$IFn$_invoke$arity$1(new cljs.core.PersistentArrayMap(null, 7, [new cljs.core.Keyword(null,"connected?","connected?",-1197551387),false,new cljs.core.Keyword(null,"api-endpoint","api-endpoint",2021131919),"http://localhost:3000",new cljs.core.Keyword(null,"client","client",-1323448117),null,new cljs.core.Keyword(null,"session-id","session-id",-1147060351),null,new cljs.core.Keyword(null,"available-tools","available-tools",1038148285),cljs.core.PersistentVector.EMPTY,new cljs.core.Keyword(null,"active-agents","active-agents",-2147218575),cljs.core.PersistentVector.EMPTY,new cljs.core.Keyword(null,"last-error","last-error",1848699973),null], null));
+opencode_unified.opencode.opencode_state = reagent.core.atom.cljs$core$IFn$_invoke$arity$1(cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"session-id","session-id",-1147060351),new cljs.core.Keyword(null,"last-error","last-error",1848699973),new cljs.core.Keyword(null,"connected?","connected?",-1197551387),new cljs.core.Keyword(null,"pending-prompts","pending-prompts",15884422),new cljs.core.Keyword(null,"chat-stream","chat-stream",-419494010),new cljs.core.Keyword(null,"client","client",-1323448117),new cljs.core.Keyword(null,"api-endpoint","api-endpoint",2021131919),new cljs.core.Keyword(null,"active-agents","active-agents",-2147218575),new cljs.core.Keyword(null,"pending-permissions","pending-permissions",509587832),new cljs.core.Keyword(null,"available-tools","available-tools",1038148285)],[null,null,false,cljs.core.PersistentArrayMap.EMPTY,cljs.core.PersistentVector.EMPTY,null,"http://localhost:3000",cljs.core.PersistentVector.EMPTY,cljs.core.PersistentArrayMap.EMPTY,cljs.core.PersistentVector.EMPTY]));
 }
 if((typeof opencode_unified !== 'undefined') && (typeof opencode_unified.opencode !== 'undefined') && (typeof opencode_unified.opencode.tool_executions !== 'undefined')){
 } else {
@@ -47,6 +47,56 @@ return result;
 }
 }
 });
+opencode_unified.opencode.response_error = (function opencode_unified$opencode$response_error(error){
+if(typeof error === 'string'){
+return error;
+} else {
+var or__5002__auto__ = error.message;
+if(cljs.core.truth_(or__5002__auto__)){
+return or__5002__auto__;
+} else {
+return cljs.core.str.cljs$core$IFn$_invoke$arity$1(error);
+}
+}
+});
+opencode_unified.opencode.session_id_from = (function opencode_unified$opencode$session_id_from(value){
+var or__5002__auto__ = new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(value);
+if(cljs.core.truth_(or__5002__auto__)){
+return or__5002__auto__;
+} else {
+var or__5002__auto____$1 = new cljs.core.Keyword(null,"session-id","session-id",-1147060351).cljs$core$IFn$_invoke$arity$1(value);
+if(cljs.core.truth_(or__5002__auto____$1)){
+return or__5002__auto____$1;
+} else {
+return cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(value,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"info","info",-317069002),new cljs.core.Keyword(null,"id","id",-1388402092)], null));
+}
+}
+});
+opencode_unified.opencode.ensure_session_id_BANG_ = (function opencode_unified$opencode$ensure_session_id_BANG_(){
+var temp__5802__auto__ = new cljs.core.Keyword(null,"session-id","session-id",-1147060351).cljs$core$IFn$_invoke$arity$1(cljs.core.deref(opencode_unified.opencode.opencode_state));
+if(cljs.core.truth_(temp__5802__auto__)){
+var session_id = temp__5802__auto__;
+return Promise.resolve(session_id);
+} else {
+return (opencode_unified.opencode.create_session.cljs$core$IFn$_invoke$arity$0 ? opencode_unified.opencode.create_session.cljs$core$IFn$_invoke$arity$0() : opencode_unified.opencode.create_session.call(null)).then((function (result){
+var normalized = ((cljs.core.map_QMARK_(result))?result:opencode_unified.opencode.sdk_response__GT_result(result));
+var session_id = opencode_unified.opencode.session_id_from(normalized);
+if(cljs.core.truth_(session_id)){
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(opencode_unified.opencode.opencode_state,cljs.core.assoc,new cljs.core.Keyword(null,"session-id","session-id",-1147060351),session_id);
+
+return session_id;
+} else {
+throw (new Error((function (){var or__5002__auto__ = new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(normalized);
+if(cljs.core.truth_(or__5002__auto__)){
+return or__5002__auto__;
+} else {
+return "Failed to create Opencode session";
+}
+})()));
+}
+}));
+}
+});
 /**
  * Connect to Opencode MCP server
  */
@@ -88,6 +138,33 @@ return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"er
 }));
 });
 /**
+ * List all Opencode sessions
+ */
+opencode_unified.opencode.list_sessions = (function opencode_unified$opencode$list_sessions(){
+var client = opencode_unified.opencode.ensure_client();
+return client.session.list().then(opencode_unified.opencode.sdk_response__GT_result).catch((function (error){
+return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"error","error",-978969032),error.message], null);
+}));
+});
+/**
+ * Delete Opencode session
+ */
+opencode_unified.opencode.delete_session = (function opencode_unified$opencode$delete_session(session_id){
+var client = opencode_unified.opencode.ensure_client();
+return client.session.delete(cljs.core.clj__GT_js(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"path","path",-188191168),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"id","id",-1388402092),session_id], null)], null))).then(opencode_unified.opencode.sdk_response__GT_result).catch((function (error){
+return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"error","error",-978969032),error.message], null);
+}));
+});
+/**
+ * Update Opencode session state
+ */
+opencode_unified.opencode.update_session = (function opencode_unified$opencode$update_session(session_id,updates){
+var client = opencode_unified.opencode.ensure_client();
+return client.session.update(cljs.core.clj__GT_js(new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"path","path",-188191168),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"id","id",-1388402092),session_id], null),new cljs.core.Keyword(null,"body","body",-2049205669),updates], null))).then(opencode_unified.opencode.sdk_response__GT_result).catch((function (error){
+return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"error","error",-978969032),error.message], null);
+}));
+});
+/**
  * Join existing Opencode session
  */
 opencode_unified.opencode.join_session = (function opencode_unified$opencode$join_session(session_id){
@@ -97,25 +174,46 @@ return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"er
 }));
 });
 /**
- * Get list of available Opencode tools (from MCP config)
+ * Get list of available Opencode tools
  */
 opencode_unified.opencode.list_available_tools = (function opencode_unified$opencode$list_available_tools(){
-var mcp_tools = cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"playwright","playwright",1518814798),new cljs.core.Keyword(null,"web-search-prime","web-search-prime",-2137459502),new cljs.core.Keyword(null,"chrome-devtools","chrome-devtools",-1160741038),new cljs.core.Keyword(null,"gh_grep","gh_grep",1398518900),new cljs.core.Keyword(null,"context7","context7",133140854),new cljs.core.Keyword(null,"zai-mcp-server","zai-mcp-server",222789592),new cljs.core.Keyword(null,"clj","clj",-660495428),new cljs.core.Keyword(null,"clj-kondo","clj-kondo",42487805),new cljs.core.Keyword(null,"serena","serena",-1708259362)],[new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"name","name",1843675177),"Playwright",new cljs.core.Keyword(null,"description","description",-1428560544),"Web automation and testing"], null),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"name","name",1843675177),"Web Search",new cljs.core.Keyword(null,"description","description",-1428560544),"Web search capabilities"], null),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"name","name",1843675177),"Chrome DevTools",new cljs.core.Keyword(null,"description","description",-1428560544),"Browser automation"], null),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"name","name",1843675177),"GitHub Grep",new cljs.core.Keyword(null,"description","description",-1428560544),"GitHub code search"], null),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"name","name",1843675177),"Context7",new cljs.core.Keyword(null,"description","description",-1428560544),"Documentation search"], null),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"name","name",1843675177),"ZAI MCP Server",new cljs.core.Keyword(null,"description","description",-1428560544),"AI and vision tools"], null),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"name","name",1843675177),"Clojure Tools",new cljs.core.Keyword(null,"description","description",-1428560544),"Clojure development tools"], null),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"name","name",1843675177),"Clj-Kondo",new cljs.core.Keyword(null,"description","description",-1428560544),"Clojure linting"], null),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"name","name",1843675177),"Serena",new cljs.core.Keyword(null,"description","description",-1428560544),"File system and project management"], null)]);
-return Promise.resolve(new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"success","success",1890645906),true,new cljs.core.Keyword(null,"tools","tools",-1241731990),mcp_tools], null));
+var client = opencode_unified.opencode.ensure_client();
+var tool_api = client.tool;
+return (tool_api["ids"]).call(tool_api,cljs.core.clj__GT_js(cljs.core.PersistentArrayMap.EMPTY)).then(opencode_unified.opencode.sdk_response__GT_result).then((function (result){
+if(cljs.core.truth_(new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(result))){
+return result;
+} else {
+var tool_ids = ((cljs.core.vector_QMARK_(result))?result:(function (){var or__5002__auto__ = new cljs.core.Keyword(null,"tools","tools",-1241731990).cljs$core$IFn$_invoke$arity$1(result);
+if(cljs.core.truth_(or__5002__auto__)){
+return or__5002__auto__;
+} else {
+return cljs.core.PersistentVector.EMPTY;
+}
+})());
+var tools = cljs.core.into.cljs$core$IFn$_invoke$arity$3(cljs.core.PersistentArrayMap.EMPTY,cljs.core.map.cljs$core$IFn$_invoke$arity$1((function (tool_id){
+return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.keyword.cljs$core$IFn$_invoke$arity$1(tool_id),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"id","id",-1388402092),tool_id,new cljs.core.Keyword(null,"name","name",1843675177),tool_id,new cljs.core.Keyword(null,"description","description",-1428560544),"Tool exposed by Opencode MCP"], null)], null);
+})),tool_ids);
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(opencode_unified.opencode.opencode_state,cljs.core.assoc,new cljs.core.Keyword(null,"available-tools","available-tools",1038148285),tool_ids);
+
+return new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"success","success",1890645906),true,new cljs.core.Keyword(null,"tools","tools",-1241731990),tools], null);
+}
+})).catch((function (error){
+return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"error","error",-978969032),opencode_unified.opencode.response_error(error)], null);
+}));
 });
 /**
  * Execute an Opencode tool via MCP
  */
 opencode_unified.opencode.execute_tool = (function opencode_unified$opencode$execute_tool(var_args){
 var args__5732__auto__ = [];
-var len__5726__auto___6764 = arguments.length;
-var i__5727__auto___6765 = (0);
+var len__5726__auto___14891 = arguments.length;
+var i__5727__auto___14892 = (0);
 while(true){
-if((i__5727__auto___6765 < len__5726__auto___6764)){
-args__5732__auto__.push((arguments[i__5727__auto___6765]));
+if((i__5727__auto___14892 < len__5726__auto___14891)){
+args__5732__auto__.push((arguments[i__5727__auto___14892]));
 
-var G__6766 = (i__5727__auto___6765 + (1));
-i__5727__auto___6765 = G__6766;
+var G__14893 = (i__5727__auto___14892 + (1));
+i__5727__auto___14892 = G__14893;
 continue;
 } else {
 }
@@ -126,50 +224,81 @@ var argseq__5733__auto__ = ((((2) < args__5732__auto__.length))?(new cljs.core.I
 return opencode_unified.opencode.execute_tool.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),(arguments[(1)]),argseq__5733__auto__);
 });
 
-(opencode_unified.opencode.execute_tool.cljs$core$IFn$_invoke$arity$variadic = (function (tool_name,parameters,p__6717){
-var vec__6718 = p__6717;
-var options = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__6718,(0),null);
+(opencode_unified.opencode.execute_tool.cljs$core$IFn$_invoke$arity$variadic = (function (tool_name,parameters,p__14796){
+var vec__14797 = p__14796;
+var options = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__14797,(0),null);
 var execution_id = cljs.core.random_uuid();
 cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(opencode_unified.opencode.tool_executions,cljs.core.assoc,execution_id,new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"tool-name","tool-name",613742581),tool_name,new cljs.core.Keyword(null,"parameters","parameters",-1229919748),parameters,new cljs.core.Keyword(null,"status","status",-1997798413),"running",new cljs.core.Keyword(null,"started-at","started-at",1318767912),(new Date()),new cljs.core.Keyword(null,"options","options",99638489),options], null));
 
-setTimeout((function (){
-return cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$variadic(opencode_unified.opencode.tool_executions,cljs.core.update,execution_id,cljs.core.merge,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"status","status",-1997798413),"completed",new cljs.core.Keyword(null,"result","result",1415092211),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"message","message",-406056002),["Tool ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(tool_name)," executed with parameters: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(JSON.stringify(cljs.core.clj__GT_js(parameters),null,(2)))].join(''),new cljs.core.Keyword(null,"output","output",-1105869043),"Mock execution result"], null),new cljs.core.Keyword(null,"completed-at","completed-at",-1210511048),(new Date())], null)], 0));
-}),(1000));
+var client = opencode_unified.opencode.ensure_client();
+return opencode_unified.opencode.ensure_session_id_BANG_().then((function (session_id){
+return client.session.command(cljs.core.clj__GT_js(new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"path","path",-188191168),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"id","id",-1388402092),session_id], null),new cljs.core.Keyword(null,"body","body",-2049205669),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"command","command",-894540724),tool_name,new cljs.core.Keyword(null,"arguments","arguments",-1182834456),JSON.stringify(cljs.core.clj__GT_js(parameters))], null)], null)));
+})).then(opencode_unified.opencode.sdk_response__GT_result).then((function (result){
+if(cljs.core.truth_(new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(result))){
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$variadic(opencode_unified.opencode.tool_executions,cljs.core.update,execution_id,cljs.core.merge,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"status","status",-1997798413),"failed",new cljs.core.Keyword(null,"error","error",-978969032),new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(result),new cljs.core.Keyword(null,"completed-at","completed-at",-1210511048),(new Date())], null)], 0));
 
-return Promise.resolve(new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"success","success",1890645906),true,new cljs.core.Keyword(null,"execution-id","execution-id",153779799),cljs.core.str.cljs$core$IFn$_invoke$arity$1(execution_id)], null));
+return new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"success","success",1890645906),false,new cljs.core.Keyword(null,"execution-id","execution-id",153779799),cljs.core.str.cljs$core$IFn$_invoke$arity$1(execution_id),new cljs.core.Keyword(null,"error","error",-978969032),new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(result)], null);
+} else {
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$variadic(opencode_unified.opencode.tool_executions,cljs.core.update,execution_id,cljs.core.merge,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"status","status",-1997798413),"completed",new cljs.core.Keyword(null,"result","result",1415092211),result,new cljs.core.Keyword(null,"completed-at","completed-at",-1210511048),(new Date())], null)], 0));
+
+return new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"success","success",1890645906),true,new cljs.core.Keyword(null,"execution-id","execution-id",153779799),cljs.core.str.cljs$core$IFn$_invoke$arity$1(execution_id),new cljs.core.Keyword(null,"result","result",1415092211),result], null);
+}
+})).catch((function (error){
+var message = opencode_unified.opencode.response_error(error);
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$variadic(opencode_unified.opencode.tool_executions,cljs.core.update,execution_id,cljs.core.merge,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"status","status",-1997798413),"failed",new cljs.core.Keyword(null,"error","error",-978969032),message,new cljs.core.Keyword(null,"completed-at","completed-at",-1210511048),(new Date())], null)], 0));
+
+return new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"success","success",1890645906),false,new cljs.core.Keyword(null,"execution-id","execution-id",153779799),cljs.core.str.cljs$core$IFn$_invoke$arity$1(execution_id),new cljs.core.Keyword(null,"error","error",-978969032),message], null);
+}));
 }));
 
 (opencode_unified.opencode.execute_tool.cljs$lang$maxFixedArity = (2));
 
 /** @this {Function} */
-(opencode_unified.opencode.execute_tool.cljs$lang$applyTo = (function (seq6714){
-var G__6715 = cljs.core.first(seq6714);
-var seq6714__$1 = cljs.core.next(seq6714);
-var G__6716 = cljs.core.first(seq6714__$1);
-var seq6714__$2 = cljs.core.next(seq6714__$1);
+(opencode_unified.opencode.execute_tool.cljs$lang$applyTo = (function (seq14793){
+var G__14794 = cljs.core.first(seq14793);
+var seq14793__$1 = cljs.core.next(seq14793);
+var G__14795 = cljs.core.first(seq14793__$1);
+var seq14793__$2 = cljs.core.next(seq14793__$1);
 var self__5711__auto__ = this;
-return self__5711__auto__.cljs$core$IFn$_invoke$arity$variadic(G__6715,G__6716,seq6714__$2);
+return self__5711__auto__.cljs$core$IFn$_invoke$arity$variadic(G__14794,G__14795,seq14793__$2);
 }));
 
 /**
  * Get list of active Opencode agents
  */
 opencode_unified.opencode.list_active_agents = (function opencode_unified$opencode$list_active_agents(){
-return Promise.resolve(new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"success","success",1890645906),true,new cljs.core.Keyword(null,"agents","agents",-1112413700),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"id","id",-1388402092),"agent-1",new cljs.core.Keyword(null,"type","type",1174270348),"general",new cljs.core.Keyword(null,"status","status",-1997798413),"active",new cljs.core.Keyword(null,"session-id","session-id",-1147060351),"session-1"], null),new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"id","id",-1388402092),"agent-2",new cljs.core.Keyword(null,"type","type",1174270348),"code-reviewer",new cljs.core.Keyword(null,"status","status",-1997798413),"idle",new cljs.core.Keyword(null,"session-id","session-id",-1147060351),null], null)], null)], null));
+var client = opencode_unified.opencode.ensure_client();
+var app_api = client.app;
+return (app_api["agents"]).call(app_api,cljs.core.clj__GT_js(cljs.core.PersistentArrayMap.EMPTY)).then(opencode_unified.opencode.sdk_response__GT_result).then((function (result){
+if(cljs.core.truth_(new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(result))){
+return result;
+} else {
+var agents = ((cljs.core.vector_QMARK_(result))?result:(function (){var or__5002__auto__ = new cljs.core.Keyword(null,"agents","agents",-1112413700).cljs$core$IFn$_invoke$arity$1(result);
+if(cljs.core.truth_(or__5002__auto__)){
+return or__5002__auto__;
+} else {
+return cljs.core.PersistentVector.EMPTY;
+}
+})());
+return new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"success","success",1890645906),true,new cljs.core.Keyword(null,"agents","agents",-1112413700),agents], null);
+}
+})).catch((function (error){
+return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"error","error",-978969032),opencode_unified.opencode.response_error(error)], null);
+}));
 });
 /**
- * Spawn a new Opencode agent
+ * Create a session for an agent
  */
 opencode_unified.opencode.spawn_agent = (function opencode_unified$opencode$spawn_agent(var_args){
 var args__5732__auto__ = [];
-var len__5726__auto___6767 = arguments.length;
-var i__5727__auto___6768 = (0);
+var len__5726__auto___14899 = arguments.length;
+var i__5727__auto___14900 = (0);
 while(true){
-if((i__5727__auto___6768 < len__5726__auto___6767)){
-args__5732__auto__.push((arguments[i__5727__auto___6768]));
+if((i__5727__auto___14900 < len__5726__auto___14899)){
+args__5732__auto__.push((arguments[i__5727__auto___14900]));
 
-var G__6769 = (i__5727__auto___6768 + (1));
-i__5727__auto___6768 = G__6769;
+var G__14901 = (i__5727__auto___14900 + (1));
+i__5727__auto___14900 = G__14901;
 continue;
 } else {
 }
@@ -180,23 +309,37 @@ var argseq__5733__auto__ = ((((2) < args__5732__auto__.length))?(new cljs.core.I
 return opencode_unified.opencode.spawn_agent.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),(arguments[(1)]),argseq__5733__auto__);
 });
 
-(opencode_unified.opencode.spawn_agent.cljs$core$IFn$_invoke$arity$variadic = (function (agent_type,_prompt,p__6724){
-var vec__6725 = p__6724;
-var _options = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__6725,(0),null);
-var agent_id = ["agent-",cljs.core.str.cljs$core$IFn$_invoke$arity$1(cljs.core.random_uuid())].join('');
-return Promise.resolve(new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"success","success",1890645906),true,new cljs.core.Keyword(null,"agent-id","agent-id",1570348870),agent_id,new cljs.core.Keyword(null,"agent-type","agent-type",1996666879),agent_type,new cljs.core.Keyword(null,"status","status",-1997798413),"spawning"], null));
+(opencode_unified.opencode.spawn_agent.cljs$core$IFn$_invoke$arity$variadic = (function (agent_type,_prompt,p__14804){
+var vec__14805 = p__14804;
+var _options = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__14805,(0),null);
+var client = opencode_unified.opencode.ensure_client();
+return client.session.create(cljs.core.clj__GT_js(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"body","body",-2049205669),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"title","title",636505583),["Agent session: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(agent_type)].join(''),new cljs.core.Keyword(null,"description","description",-1428560544),"Session created from Opencode Unified Editor",new cljs.core.Keyword(null,"agent","agent",-766455027),agent_type], null)], null))).then(opencode_unified.opencode.sdk_response__GT_result).then((function (result){
+if(cljs.core.truth_(new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(result))){
+return result;
+} else {
+var session_id = opencode_unified.opencode.session_id_from(result);
+if(cljs.core.truth_(session_id)){
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(opencode_unified.opencode.opencode_state,cljs.core.assoc,new cljs.core.Keyword(null,"session-id","session-id",-1147060351),session_id);
+} else {
+}
+
+return new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"success","success",1890645906),true,new cljs.core.Keyword(null,"agent-id","agent-id",1570348870),session_id,new cljs.core.Keyword(null,"agent-type","agent-type",1996666879),agent_type,new cljs.core.Keyword(null,"status","status",-1997798413),"active"], null);
+}
+})).catch((function (error){
+return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"error","error",-978969032),opencode_unified.opencode.response_error(error)], null);
+}));
 }));
 
 (opencode_unified.opencode.spawn_agent.cljs$lang$maxFixedArity = (2));
 
 /** @this {Function} */
-(opencode_unified.opencode.spawn_agent.cljs$lang$applyTo = (function (seq6721){
-var G__6722 = cljs.core.first(seq6721);
-var seq6721__$1 = cljs.core.next(seq6721);
-var G__6723 = cljs.core.first(seq6721__$1);
-var seq6721__$2 = cljs.core.next(seq6721__$1);
+(opencode_unified.opencode.spawn_agent.cljs$lang$applyTo = (function (seq14801){
+var G__14802 = cljs.core.first(seq14801);
+var seq14801__$1 = cljs.core.next(seq14801);
+var G__14803 = cljs.core.first(seq14801__$1);
+var seq14801__$2 = cljs.core.next(seq14801__$1);
 var self__5711__auto__ = this;
-return self__5711__auto__.cljs$core$IFn$_invoke$arity$variadic(G__6722,G__6723,seq6721__$2);
+return self__5711__auto__.cljs$core$IFn$_invoke$arity$variadic(G__14802,G__14803,seq14801__$2);
 }));
 
 /**
@@ -204,14 +347,14 @@ return self__5711__auto__.cljs$core$IFn$_invoke$arity$variadic(G__6722,G__6723,s
  */
 opencode_unified.opencode.send_agent_message = (function opencode_unified$opencode$send_agent_message(var_args){
 var args__5732__auto__ = [];
-var len__5726__auto___6770 = arguments.length;
-var i__5727__auto___6771 = (0);
+var len__5726__auto___14906 = arguments.length;
+var i__5727__auto___14907 = (0);
 while(true){
-if((i__5727__auto___6771 < len__5726__auto___6770)){
-args__5732__auto__.push((arguments[i__5727__auto___6771]));
+if((i__5727__auto___14907 < len__5726__auto___14906)){
+args__5732__auto__.push((arguments[i__5727__auto___14907]));
 
-var G__6772 = (i__5727__auto___6771 + (1));
-i__5727__auto___6771 = G__6772;
+var G__14908 = (i__5727__auto___14907 + (1));
+i__5727__auto___14907 = G__14908;
 continue;
 } else {
 }
@@ -222,55 +365,159 @@ var argseq__5733__auto__ = ((((2) < args__5732__auto__.length))?(new cljs.core.I
 return opencode_unified.opencode.send_agent_message.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),(arguments[(1)]),argseq__5733__auto__);
 });
 
-(opencode_unified.opencode.send_agent_message.cljs$core$IFn$_invoke$arity$variadic = (function (_agent_id,message,p__6731){
-var vec__6732 = p__6731;
-var _message_type = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__6732,(0),null);
-return Promise.resolve(new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"success","success",1890645906),true,new cljs.core.Keyword(null,"message-id","message-id",-1564847547),["msg-",cljs.core.str.cljs$core$IFn$_invoke$arity$1(cljs.core.random_uuid())].join(''),new cljs.core.Keyword(null,"response","response",-1068424192),["Agent response to: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(message)].join('')], null));
+(opencode_unified.opencode.send_agent_message.cljs$core$IFn$_invoke$arity$variadic = (function (agent_id,message,p__14812){
+var vec__14813 = p__14812;
+var _message_type = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__14813,(0),null);
+var client = opencode_unified.opencode.ensure_client();
+return client.session.prompt(cljs.core.clj__GT_js(new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"path","path",-188191168),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"id","id",-1388402092),agent_id], null),new cljs.core.Keyword(null,"body","body",-2049205669),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"parts","parts",849007691),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"type","type",1174270348),"text",new cljs.core.Keyword(null,"text","text",-1790561697),message], null)], null)], null)], null))).then(opencode_unified.opencode.sdk_response__GT_result).then((function (result){
+if(cljs.core.truth_(new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(result))){
+return result;
+} else {
+return new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"success","success",1890645906),true,new cljs.core.Keyword(null,"message-id","message-id",-1564847547),(function (){var or__5002__auto__ = new cljs.core.Keyword(null,"id","id",-1388402092).cljs$core$IFn$_invoke$arity$1(result);
+if(cljs.core.truth_(or__5002__auto__)){
+return or__5002__auto__;
+} else {
+return cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(result,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"info","info",-317069002),new cljs.core.Keyword(null,"id","id",-1388402092)], null));
+}
+})(),new cljs.core.Keyword(null,"response","response",-1068424192),result], null);
+}
+})).catch((function (error){
+return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"error","error",-978969032),opencode_unified.opencode.response_error(error)], null);
+}));
 }));
 
 (opencode_unified.opencode.send_agent_message.cljs$lang$maxFixedArity = (2));
 
 /** @this {Function} */
-(opencode_unified.opencode.send_agent_message.cljs$lang$applyTo = (function (seq6728){
-var G__6729 = cljs.core.first(seq6728);
-var seq6728__$1 = cljs.core.next(seq6728);
-var G__6730 = cljs.core.first(seq6728__$1);
-var seq6728__$2 = cljs.core.next(seq6728__$1);
+(opencode_unified.opencode.send_agent_message.cljs$lang$applyTo = (function (seq14808){
+var G__14809 = cljs.core.first(seq14808);
+var seq14808__$1 = cljs.core.next(seq14808);
+var G__14810 = cljs.core.first(seq14808__$1);
+var seq14808__$2 = cljs.core.next(seq14808__$1);
 var self__5711__auto__ = this;
-return self__5711__auto__.cljs$core$IFn$_invoke$arity$variadic(G__6729,G__6730,seq6728__$2);
+return self__5711__auto__.cljs$core$IFn$_invoke$arity$variadic(G__14809,G__14810,seq14808__$2);
 }));
 
 /**
  * Get status of an Opencode agent
  */
 opencode_unified.opencode.get_agent_status = (function opencode_unified$opencode$get_agent_status(agent_id){
-return Promise.resolve(new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"success","success",1890645906),true,new cljs.core.Keyword(null,"agent-id","agent-id",1570348870),agent_id,new cljs.core.Keyword(null,"status","status",-1997798413),"active",new cljs.core.Keyword(null,"last-activity","last-activity",-1410729976),(new Date())], null));
+var client = opencode_unified.opencode.ensure_client();
+return client.session.get(cljs.core.clj__GT_js(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"path","path",-188191168),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"id","id",-1388402092),agent_id], null)], null))).then(opencode_unified.opencode.sdk_response__GT_result).then((function (result){
+if(cljs.core.truth_(new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(result))){
+return result;
+} else {
+return new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"success","success",1890645906),true,new cljs.core.Keyword(null,"agent-id","agent-id",1570348870),agent_id,new cljs.core.Keyword(null,"status","status",-1997798413),(function (){var or__5002__auto__ = new cljs.core.Keyword(null,"status","status",-1997798413).cljs$core$IFn$_invoke$arity$1(result);
+if(cljs.core.truth_(or__5002__auto__)){
+return or__5002__auto__;
+} else {
+return "active";
+}
+})(),new cljs.core.Keyword(null,"last-activity","last-activity",-1410729976),(function (){var or__5002__auto__ = new cljs.core.Keyword(null,"updated","updated",-1627192056).cljs$core$IFn$_invoke$arity$1(result);
+if(cljs.core.truth_(or__5002__auto__)){
+return or__5002__auto__;
+} else {
+return new cljs.core.Keyword(null,"created","created",-704993748).cljs$core$IFn$_invoke$arity$1(result);
+}
+})(),new cljs.core.Keyword(null,"session","session",1008279103),result], null);
+}
+})).catch((function (error){
+return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"error","error",-978969032),opencode_unified.opencode.response_error(error)], null);
+}));
+});
+/**
+ * Set active Opencode session
+ */
+opencode_unified.opencode.use_session_BANG_ = (function opencode_unified$opencode$use_session_BANG_(session_id){
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(opencode_unified.opencode.opencode_state,cljs.core.assoc,new cljs.core.Keyword(null,"session-id","session-id",-1147060351),session_id);
+
+return Promise.resolve(new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"success","success",1890645906),true,new cljs.core.Keyword(null,"session-id","session-id",-1147060351),session_id], null));
+});
+/**
+ * Clear local chat stream
+ */
+opencode_unified.opencode.clear_chat_stream_BANG_ = (function opencode_unified$opencode$clear_chat_stream_BANG_(){
+return cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(opencode_unified.opencode.opencode_state,cljs.core.assoc,new cljs.core.Keyword(null,"chat-stream","chat-stream",-419494010),cljs.core.PersistentVector.EMPTY);
+});
+/**
+ * Send message to active Opencode session
+ */
+opencode_unified.opencode.send_session_message = (function opencode_unified$opencode$send_session_message(message){
+var temp__5802__auto__ = new cljs.core.Keyword(null,"session-id","session-id",-1147060351).cljs$core$IFn$_invoke$arity$1(cljs.core.deref(opencode_unified.opencode.opencode_state));
+if(cljs.core.truth_(temp__5802__auto__)){
+var session_id = temp__5802__auto__;
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$variadic(opencode_unified.opencode.opencode_state,cljs.core.update,new cljs.core.Keyword(null,"chat-stream","chat-stream",-419494010),cljs.core.conj,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"role","role",-736691072),"user",new cljs.core.Keyword(null,"content","content",15833224),message], null)], 0));
+
+return opencode_unified.opencode.send_agent_message(session_id,message).then((function (result){
+var temp__5802__auto___14909__$1 = new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(result);
+if(cljs.core.truth_(temp__5802__auto___14909__$1)){
+var error_14910 = temp__5802__auto___14909__$1;
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$variadic(opencode_unified.opencode.opencode_state,cljs.core.update,new cljs.core.Keyword(null,"chat-stream","chat-stream",-419494010),cljs.core.conj,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"role","role",-736691072),"error",new cljs.core.Keyword(null,"content","content",15833224),error_14910], null)], 0));
+} else {
+var response_14911 = (function (){var or__5002__auto__ = new cljs.core.Keyword(null,"response","response",-1068424192).cljs$core$IFn$_invoke$arity$1(result);
+if(cljs.core.truth_(or__5002__auto__)){
+return or__5002__auto__;
+} else {
+return result;
+}
+})();
+var text_14912 = ((typeof response_14911 === 'string')?response_14911:cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(response_14911,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"data","data",-232669377),new cljs.core.Keyword(null,"parts","parts",849007691),(0),new cljs.core.Keyword(null,"text","text",-1790561697)], null)));
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$variadic(opencode_unified.opencode.opencode_state,cljs.core.update,new cljs.core.Keyword(null,"chat-stream","chat-stream",-419494010),cljs.core.conj,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"role","role",-736691072),"assistant",new cljs.core.Keyword(null,"content","content",15833224),(function (){var or__5002__auto__ = text_14912;
+if(cljs.core.truth_(or__5002__auto__)){
+return or__5002__auto__;
+} else {
+return cljs.core.str.cljs$core$IFn$_invoke$arity$1(response_14911);
+}
+})()], null)], 0));
+}
+
+return result;
+}));
+} else {
+return Promise.resolve(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"error","error",-978969032),"No active session"], null));
+}
+});
+/**
+ * Respond to a pending permission request
+ */
+opencode_unified.opencode.respond_to_permission_BANG_ = (function opencode_unified$opencode$respond_to_permission_BANG_(id,_response){
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$variadic(opencode_unified.opencode.opencode_state,cljs.core.update,new cljs.core.Keyword(null,"pending-permissions","pending-permissions",509587832),cljs.core.dissoc,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([id], 0));
+
+return Promise.resolve(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"success","success",1890645906),true], null));
+});
+/**
+ * Respond to a pending control prompt
+ */
+opencode_unified.opencode.respond_to_control_prompt_BANG_ = (function opencode_unified$opencode$respond_to_control_prompt_BANG_(id,_response){
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$variadic(opencode_unified.opencode.opencode_state,cljs.core.update,new cljs.core.Keyword(null,"pending-prompts","pending-prompts",15884422),cljs.core.dissoc,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([id], 0));
+
+return Promise.resolve(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"success","success",1890645906),true], null));
 });
 /**
  * Read file using Opencode file operations
  */
 opencode_unified.opencode.opencode_read_file = (function opencode_unified$opencode$opencode_read_file(file_path){
-return opencode_unified.opencode.execute_tool("serena_read_file",new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"relative_path","relative_path",-1139247997),file_path], null));
+return opencode_unified.workspace.read_file(file_path);
 });
 /**
  * Write file using Opencode file operations
  */
 opencode_unified.opencode.opencode_write_file = (function opencode_unified$opencode$opencode_write_file(file_path,content){
-return opencode_unified.opencode.execute_tool("serena_create_text_file",new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"relative_path","relative_path",-1139247997),file_path,new cljs.core.Keyword(null,"content","content",15833224),content], null));
+return opencode_unified.workspace.write_file(file_path,content);
 });
 /**
  * Search code using Opencode tools
  */
 opencode_unified.opencode.opencode_search_code = (function opencode_unified$opencode$opencode_search_code(var_args){
 var args__5732__auto__ = [];
-var len__5726__auto___6773 = arguments.length;
-var i__5727__auto___6774 = (0);
+var len__5726__auto___14918 = arguments.length;
+var i__5727__auto___14919 = (0);
 while(true){
-if((i__5727__auto___6774 < len__5726__auto___6773)){
-args__5732__auto__.push((arguments[i__5727__auto___6774]));
+if((i__5727__auto___14919 < len__5726__auto___14918)){
+args__5732__auto__.push((arguments[i__5727__auto___14919]));
 
-var G__6775 = (i__5727__auto___6774 + (1));
-i__5727__auto___6774 = G__6775;
+var G__14920 = (i__5727__auto___14919 + (1));
+i__5727__auto___14919 = G__14920;
 continue;
 } else {
 }
@@ -281,20 +528,23 @@ var argseq__5733__auto__ = ((((1) < args__5732__auto__.length))?(new cljs.core.I
 return opencode_unified.opencode.opencode_search_code.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),argseq__5733__auto__);
 });
 
-(opencode_unified.opencode.opencode_search_code.cljs$core$IFn$_invoke$arity$variadic = (function (pattern,p__6737){
-var vec__6738 = p__6737;
-var options = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__6738,(0),null);
-return opencode_unified.opencode.execute_tool("serena_search_for_pattern",cljs.core.merge.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"substring_pattern","substring_pattern",-1485593700),pattern], null),options], 0)));
+(opencode_unified.opencode.opencode_search_code.cljs$core$IFn$_invoke$arity$variadic = (function (pattern,p__14824){
+var vec__14825 = p__14824;
+var options = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__14825,(0),null);
+var client = opencode_unified.opencode.ensure_client();
+return client.find.text(cljs.core.clj__GT_js(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"query","query",-1288509510),cljs.core.merge.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"pattern","pattern",242135423),pattern], null),options], 0))], null))).then(opencode_unified.opencode.sdk_response__GT_result).catch((function (error){
+return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"error","error",-978969032),opencode_unified.opencode.response_error(error)], null);
+}));
 }));
 
 (opencode_unified.opencode.opencode_search_code.cljs$lang$maxFixedArity = (1));
 
 /** @this {Function} */
-(opencode_unified.opencode.opencode_search_code.cljs$lang$applyTo = (function (seq6735){
-var G__6736 = cljs.core.first(seq6735);
-var seq6735__$1 = cljs.core.next(seq6735);
+(opencode_unified.opencode.opencode_search_code.cljs$lang$applyTo = (function (seq14822){
+var G__14823 = cljs.core.first(seq14822);
+var seq14822__$1 = cljs.core.next(seq14822);
 var self__5711__auto__ = this;
-return self__5711__auto__.cljs$core$IFn$_invoke$arity$variadic(G__6736,seq6735__$1);
+return self__5711__auto__.cljs$core$IFn$_invoke$arity$variadic(G__14823,seq14822__$1);
 }));
 
 /**
@@ -350,8 +600,8 @@ var agent_id = new cljs.core.Keyword(null,"agent-id","agent-id",1570348870).cljs
 if(cljs.core.truth_(agent_id)){
 var content = new cljs.core.Keyword(null,"content","content",15833224).cljs$core$IFn$_invoke$arity$1(buffer);
 var lines = clojure.string.split.cljs$core$IFn$_invoke$arity$2(content,/\n/);
-var message_lines = cljs.core.take_while.cljs$core$IFn$_invoke$arity$2((function (p1__6741_SHARP_){
-return cljs.core.not_EQ_.cljs$core$IFn$_invoke$arity$2(p1__6741_SHARP_,"---");
+var message_lines = cljs.core.take_while.cljs$core$IFn$_invoke$arity$2((function (p1__14832_SHARP_){
+return cljs.core.not_EQ_.cljs$core$IFn$_invoke$arity$2(p1__14832_SHARP_,"---");
 }),cljs.core.drop.cljs$core$IFn$_invoke$arity$2((3),lines));
 var message = clojure.string.join.cljs$core$IFn$_invoke$arity$2("\n",message_lines);
 return opencode_unified.opencode.send_agent_message(agent_id,message).then((function (result){
@@ -361,7 +611,7 @@ return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(b,new cljs.core.Keyword(nul
 }));
 } else {
 return opencode_unified.state.update_current_buffer_BANG_((function (b){
-return cljs.core.assoc.cljs$core$IFn$_invoke$arity$variadic(b,new cljs.core.Keyword(null,"content","content",15833224),[cljs.core.str.cljs$core$IFn$_invoke$arity$1(content),"\n\nAgent: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"result","result",1415092211).cljs$core$IFn$_invoke$arity$1(result)),"\n\n---\n\n"].join(''),cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"error","error",-978969032),null], 0));
+return cljs.core.assoc.cljs$core$IFn$_invoke$arity$variadic(b,new cljs.core.Keyword(null,"content","content",15833224),[cljs.core.str.cljs$core$IFn$_invoke$arity$1(content),"\n\nAgent: ",cljs.core.pr_str.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"response","response",-1068424192).cljs$core$IFn$_invoke$arity$1(result)], 0)),"\n\n---\n\n"].join(''),cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"error","error",-978969032),null], 0));
 }));
 }
 }));
@@ -401,8 +651,8 @@ return execution;
 return and__5000__auto__;
 }
 })())){
-var status_line = (function (){var G__6742 = new cljs.core.Keyword(null,"status","status",-1997798413).cljs$core$IFn$_invoke$arity$1(execution);
-switch (G__6742) {
+var status_line = (function (){var G__14843 = new cljs.core.Keyword(null,"status","status",-1997798413).cljs$core$IFn$_invoke$arity$1(execution);
+switch (G__14843) {
 case "running":
 return "Status: Running...";
 
@@ -416,7 +666,7 @@ return ["Status: Failed\n\nError: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(
 
 break;
 default:
-throw (new Error(["No matching clause: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(G__6742)].join('')));
+throw (new Error(["No matching clause: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(G__14843)].join('')));
 
 }
 })();
@@ -439,7 +689,7 @@ return opencode_unified.opencode.list_available_tools().then((function (result){
 if(cljs.core.truth_(new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(result))){
 return null;
 } else {
-return alert(["Available tools:\n",clojure.string.join.cljs$core$IFn$_invoke$arity$2("\n",cljs.core.map.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"name","name",1843675177),result))].join(''));
+return alert(["Available tools:\n",clojure.string.join.cljs$core$IFn$_invoke$arity$2("\n",cljs.core.map.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"name","name",1843675177),cljs.core.vals(new cljs.core.Keyword(null,"tools","tools",-1241731990).cljs$core$IFn$_invoke$arity$1(result))))].join(''));
 }
 }));
 })], null),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"name","name",1843675177),"Spawn Agent",new cljs.core.Keyword(null,"description","description",-1428560544),"Spawn a new Opencode agent",new cljs.core.Keyword(null,"action","action",-811238024),(function (){
@@ -476,11 +726,11 @@ try{var parsed_params = JSON.parse(parameters);
 return opencode_unified.opencode.execute_tool(tool_name,cljs.core.js__GT_clj.cljs$core$IFn$_invoke$arity$variadic(parsed_params,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"keywordize-keys","keywordize-keys",1310784252),true], 0))).then((function (result){
 return opencode_unified.opencode.create_tool_execution_buffer(tool_name,cljs.core.js__GT_clj.cljs$core$IFn$_invoke$arity$variadic(parsed_params,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"keywordize-keys","keywordize-keys",1310784252),true], 0)),new cljs.core.Keyword(null,"execution-id","execution-id",153779799).cljs$core$IFn$_invoke$arity$1(result));
 }));
-}catch (e6743){if((e6743 instanceof Error)){
-var e = e6743;
+}catch (e14853){if((e14853 instanceof Error)){
+var e = e14853;
 return alert(["Invalid JSON: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(e.message)].join(''));
 } else {
-throw e6743;
+throw e14853;
 
 }
 }} else {
@@ -495,15 +745,15 @@ opencode_unified.opencode.setup_opencode_auto_save = (function opencode_unified$
 return cljs.core.add_watch(opencode_unified.state.app_state,new cljs.core.Keyword(null,"opencode-auto-save","opencode-auto-save",1664079497),(function (_,___$1,old_state,new_state){
 var old_buffers = new cljs.core.Keyword(null,"buffers","buffers",471409492).cljs$core$IFn$_invoke$arity$1(old_state);
 var new_buffers = new cljs.core.Keyword(null,"buffers","buffers",471409492).cljs$core$IFn$_invoke$arity$1(new_state);
-var seq__6744 = cljs.core.seq(new_buffers);
-var chunk__6745 = null;
-var count__6746 = (0);
-var i__6747 = (0);
+var seq__14854 = cljs.core.seq(new_buffers);
+var chunk__14855 = null;
+var count__14856 = (0);
+var i__14857 = (0);
 while(true){
-if((i__6747 < count__6746)){
-var vec__6754 = chunk__6745.cljs$core$IIndexed$_nth$arity$2(null,i__6747);
-var buffer_id = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__6754,(0),null);
-var buffer = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__6754,(1),null);
+if((i__14857 < count__14856)){
+var vec__14870 = chunk__14855.cljs$core$IIndexed$_nth$arity$2(null,i__14857);
+var buffer_id = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__14870,(0),null);
+var buffer = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__14870,(1),null);
 if(cljs.core.truth_((function (){var and__5000__auto__ = cljs.core.not(new cljs.core.Keyword(null,"saved?","saved?",-2027163192).cljs$core$IFn$_invoke$arity$1(buffer));
 if(and__5000__auto__){
 var and__5000__auto____$1 = new cljs.core.Keyword(null,"path","path",-188191168).cljs$core$IFn$_invoke$arity$1(buffer);
@@ -521,34 +771,34 @@ opencode_unified.opencode.save_buffer_with_opencode(buffer_id);
 }
 
 
-var G__6777 = seq__6744;
-var G__6778 = chunk__6745;
-var G__6779 = count__6746;
-var G__6780 = (i__6747 + (1));
-seq__6744 = G__6777;
-chunk__6745 = G__6778;
-count__6746 = G__6779;
-i__6747 = G__6780;
+var G__14934 = seq__14854;
+var G__14935 = chunk__14855;
+var G__14936 = count__14856;
+var G__14937 = (i__14857 + (1));
+seq__14854 = G__14934;
+chunk__14855 = G__14935;
+count__14856 = G__14936;
+i__14857 = G__14937;
 continue;
 } else {
-var temp__5804__auto__ = cljs.core.seq(seq__6744);
+var temp__5804__auto__ = cljs.core.seq(seq__14854);
 if(temp__5804__auto__){
-var seq__6744__$1 = temp__5804__auto__;
-if(cljs.core.chunked_seq_QMARK_(seq__6744__$1)){
-var c__5525__auto__ = cljs.core.chunk_first(seq__6744__$1);
-var G__6781 = cljs.core.chunk_rest(seq__6744__$1);
-var G__6782 = c__5525__auto__;
-var G__6783 = cljs.core.count(c__5525__auto__);
-var G__6784 = (0);
-seq__6744 = G__6781;
-chunk__6745 = G__6782;
-count__6746 = G__6783;
-i__6747 = G__6784;
+var seq__14854__$1 = temp__5804__auto__;
+if(cljs.core.chunked_seq_QMARK_(seq__14854__$1)){
+var c__5525__auto__ = cljs.core.chunk_first(seq__14854__$1);
+var G__14938 = cljs.core.chunk_rest(seq__14854__$1);
+var G__14939 = c__5525__auto__;
+var G__14940 = cljs.core.count(c__5525__auto__);
+var G__14941 = (0);
+seq__14854 = G__14938;
+chunk__14855 = G__14939;
+count__14856 = G__14940;
+i__14857 = G__14941;
 continue;
 } else {
-var vec__6757 = cljs.core.first(seq__6744__$1);
-var buffer_id = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__6757,(0),null);
-var buffer = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__6757,(1),null);
+var vec__14873 = cljs.core.first(seq__14854__$1);
+var buffer_id = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__14873,(0),null);
+var buffer = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__14873,(1),null);
 if(cljs.core.truth_((function (){var and__5000__auto__ = cljs.core.not(new cljs.core.Keyword(null,"saved?","saved?",-2027163192).cljs$core$IFn$_invoke$arity$1(buffer));
 if(and__5000__auto__){
 var and__5000__auto____$1 = new cljs.core.Keyword(null,"path","path",-188191168).cljs$core$IFn$_invoke$arity$1(buffer);
@@ -566,14 +816,14 @@ opencode_unified.opencode.save_buffer_with_opencode(buffer_id);
 }
 
 
-var G__6785 = cljs.core.next(seq__6744__$1);
-var G__6786 = null;
-var G__6787 = (0);
-var G__6788 = (0);
-seq__6744 = G__6785;
-chunk__6745 = G__6786;
-count__6746 = G__6787;
-i__6747 = G__6788;
+var G__14942 = cljs.core.next(seq__14854__$1);
+var G__14943 = null;
+var G__14944 = (0);
+var G__14945 = (0);
+seq__14854 = G__14942;
+chunk__14855 = G__14943;
+count__14856 = G__14944;
+i__14857 = G__14945;
 continue;
 }
 } else {
@@ -592,28 +842,9 @@ cljs.core.println.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$c
 
 opencode_unified.opencode.connect_to_opencode("http://localhost:4096").then((function (result){
 if(cljs.core.truth_(new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(result))){
-cljs.core.println.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["Opencode MCP server not available:",new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(result)], 0));
-
-cljs.core.println.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["Starting mock server for development..."], 0));
-
-if((typeof require !== 'undefined')){
-try{var child_process_6789 = require("child_process");
-child_process_6789.spawn("node",new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [[cljs.core.str.cljs$core$IFn$_invoke$arity$1(__dirname),"/../../../packages/opencode-session-manager/mock-opencode-server.js"].join('')], null),({"stdio": "inherit", "detached": true}));
-}catch (e6760){if((e6760 instanceof Error)){
-var e_6790 = e6760;
-cljs.core.println.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["Could not start mock server:",e_6790.message], 0));
+return cljs.core.println.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["Opencode server not available:",new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(result)], 0));
 } else {
-throw e6760;
-
-}
-}} else {
-}
-
-return setTimeout((function (){
-return opencode_unified.opencode.connect_to_opencode("http://localhost:4096");
-}),(2000));
-} else {
-cljs.core.println.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["Connected to Opencode MCP server"], 0));
+cljs.core.println.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["Connected to Opencode server"], 0));
 
 return opencode_unified.opencode.create_session().then((function (session_result){
 if(cljs.core.truth_(new cljs.core.Keyword(null,"error","error",-978969032).cljs$core$IFn$_invoke$arity$1(session_result))){

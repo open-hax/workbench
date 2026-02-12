@@ -1,12 +1,12 @@
-import fs from 'node:fs';
-import path from 'node:path';
-
-// Simple AVA config for this package
+// AVA config for TypeScript tests with tsx
 export default {
-  files: ['dist/**/*.test.js', './*.test.js'],
+  files: ['src/tests/**/*.test.ts', 'tests/**/*.test.ts'],
   timeout: '30s',
   failFast: false,
-  nodeArguments: ['--enable-source-maps'],
+  extensions: {
+    ts: 'module'
+  },
+  nodeArguments: ['--import=tsx'],
   environmentVariables: {
     NODE_ENV: 'test',
   },

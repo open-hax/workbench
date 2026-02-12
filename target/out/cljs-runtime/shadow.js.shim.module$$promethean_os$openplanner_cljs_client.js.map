@@ -1,0 +1,9 @@
+{
+"version":3,
+"file":"shadow.js.shim.module$$promethean_os$openplanner_cljs_client.js",
+"lineCount":5,
+"mappings":"AAAAA,IAAKC,CAAAA,OAAL,CAAa,8DAAb,CAAA;AACAD,IAAKC,CAAAA,OAAL,CAAa,qEAAb,CAAA;AACAC,MAAOC,CAAAA,EAAGC,CAAAA,IAAKC,CAAAA,6CAAf,GAA+DH,MAAOC,CAAAA,EAAGG,CAAAA,cAAV,CAAyB,wCAAzB,CAA/D,GAAoIC,OAAA,CAAQ,wCAAR,CAApI;AACAC,mEAAoEC,CAAAA,OAApE,GAA8EP,MAAOC,CAAAA,EAAGC,CAAAA,IAAKC,CAAAA,6CAA7F;;",
+"sources":["shadow.js.shim.module$$promethean_os$openplanner_cljs_client.js"],
+"sourcesContent":["goog.provide(\"shadow.js.shim.module$$promethean_os$openplanner_cljs_client\");\ngoog.provide(\"module$shadow_js_shim_module$$promethean_os$openplanner_cljs_client\");\nshadow.js.shim.module$$promethean_os$openplanner_cljs_client = shadow.js.nativeProvides[\"@promethean-os/openplanner-cljs-client\"] = require(\"@promethean-os/openplanner-cljs-client\");\nmodule$shadow_js_shim_module$$promethean_os$openplanner_cljs_client.default = shadow.js.shim.module$$promethean_os$openplanner_cljs_client;\n"],
+"names":["goog","provide","shadow","js","shim","module$$promethean_os$openplanner_cljs_client","nativeProvides","require","module$shadow_js_shim_module$$promethean_os$openplanner_cljs_client","default"]
+}
