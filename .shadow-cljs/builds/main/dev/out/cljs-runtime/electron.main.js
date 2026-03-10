@@ -45,8 +45,8 @@ var preload = electron.main.path.join(process.cwd(),"dist","preload.js");
 var w = (new electron.main.BrowserWindow(cljs.core.clj__GT_js(new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"width","width",-384071477),(1400),new cljs.core.Keyword(null,"height","height",1025178622),(900),new cljs.core.Keyword(null,"title","title",636505583),"OpenCode \u2022 Spacemacs UI",new cljs.core.Keyword(null,"webPreferences","webPreferences",-1267169265),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"contextIsolation","contextIsolation",-277188069),true,new cljs.core.Keyword(null,"nodeIntegration","nodeIntegration",-784873827),false,new cljs.core.Keyword(null,"preload","preload",1646824722),preload], null)], null))));
 cljs.core.reset_BANG_(electron.main.win_STAR_,w);
 
-var url_12252 = ["file://",cljs.core.str.cljs$core$IFn$_invoke$arity$1(electron.main.path.join(process.cwd(),"public","index.html"))].join('');
-w.loadURL(url_12252);
+var url_13773 = ["file://",cljs.core.str.cljs$core$IFn$_invoke$arity$1(electron.main.path.join(process.cwd(),"public","index.html"))].join('');
+w.loadURL(url_13773);
 
 return w.on("closed",(function (){
 return cljs.core.reset_BANG_(electron.main.win_STAR_,null);
@@ -71,7 +71,7 @@ return "dist/index.js";
 })();
 var url = ["file://",cljs.core.str.cljs$core$IFn$_invoke$arity$1(electron.main.path.join(dir,name,entry))].join('');
 return cljs.core.clj__GT_js(new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"id","id",-1388402092),name,new cljs.core.Keyword(null,"manifest","manifest",-1386791956),data,new cljs.core.Keyword(null,"url","url",276297046),url], null));
-}catch (e12077){var _ = e12077;
+}catch (e13596){var _ = e13596;
 return null;
 }} else {
 return null;
@@ -101,7 +101,7 @@ return true;
 
 electron.main.ipcMain.handle("state:read",(function (_){
 try{return electron.main.fs.readFileSync(electron.main.state_file(),"utf8");
-}catch (e12115){var ___$1 = e12115;
+}catch (e13597){var ___$1 = e13597;
 return null;
 }}));
 
@@ -126,7 +126,7 @@ return true;
 electron.main.ipcMain.handle("list-directory",(function (_,p){
 try{var items = electron.main.fs.readdirSync(p);
 return cljs.core.clj__GT_js(cljs.core.map.cljs$core$IFn$_invoke$arity$2(cljs.core.str,items));
-}catch (e12120){var ___$1 = e12120;
+}catch (e13598){var ___$1 = e13598;
 return cljs.core.clj__GT_js(cljs.core.PersistentVector.EMPTY);
 }}));
 
@@ -205,9 +205,9 @@ return electron.main.list_plugin_manifests();
 electron.main.start_plugin_watch_BANG_ = (function electron$main$start_plugin_watch_BANG_(){
 electron.main.ensure_plugin_dir_BANG_();
 
-var w = (function (){var G__12174 = electron.main.plugin_dir();
-var G__12175 = ({"ignoreInitial": true});
-return (electron.main.chokidar.watch.cljs$core$IFn$_invoke$arity$2 ? electron.main.chokidar.watch.cljs$core$IFn$_invoke$arity$2(G__12174,G__12175) : electron.main.chokidar.watch.call(null,G__12174,G__12175));
+var w = (function (){var G__13611 = electron.main.plugin_dir();
+var G__13612 = ({"ignoreInitial": true});
+return (electron.main.chokidar.watch.cljs$core$IFn$_invoke$arity$2 ? electron.main.chokidar.watch.cljs$core$IFn$_invoke$arity$2(G__13611,G__13612) : electron.main.chokidar.watch.call(null,G__13611,G__13612));
 })();
 return w.on("all",(function (_,___$1){
 var temp__5804__auto__ = cljs.core.deref(electron.main.win_STAR_);
