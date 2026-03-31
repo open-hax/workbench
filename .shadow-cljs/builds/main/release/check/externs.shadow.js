@@ -1,0 +1,17 @@
+/** @const {ShadowJS} */ var module;
+ShadowJS.prototype.BrowserWindow;
+ShadowJS.prototype.Menu;
+ShadowJS.prototype.app;
+ShadowJS.prototype.cwd;
+ShadowJS.prototype.existsSync;
+ShadowJS.prototype.getPath;
+ShadowJS.prototype.ipcMain;
+ShadowJS.prototype.loadURL;
+ShadowJS.prototype.mkdirSync;
+ShadowJS.prototype.on;
+ShadowJS.prototype.parse;
+ShadowJS.prototype.quit;
+ShadowJS.prototype.readFileSync;
+ShadowJS.prototype.readdirSync;
+ShadowJS.prototype.whenReady;
+ShadowJS.prototype.writeFileSync;

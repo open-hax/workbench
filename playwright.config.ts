@@ -53,7 +53,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'pnpm build:full && node src/typescript/server/web-ui/server.ts',
+    command: 'pnpm build:clojurescript && cp static/index.html public/index.html && python3 -m http.server 8080 -d public',
     port: 8080,
     reuseExistingServer: !process.env.CI,
     timeout: 120000,

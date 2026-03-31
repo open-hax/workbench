@@ -1,0 +1,9 @@
+{
+"version":3,
+"file":"shadow.js.shim.module$$promethean_os$opencode_cljs_client.js",
+"lineCount":5,
+"mappings":"AAAAA,IAAKC,CAAAA,OAAL,CAAa,2DAAb,CAAA;AACAD,IAAKC,CAAAA,OAAL,CAAa,kEAAb,CAAA;AACAC,MAAOC,CAAAA,EAAGC,CAAAA,IAAKC,CAAAA,0CAAf,GAA4DH,MAAOC,CAAAA,EAAGG,CAAAA,cAAV,CAAyB,qCAAzB,CAA5D,GAA8HC,OAAA,CAAQ,qCAAR,CAA9H;AACAC,gEAAiEC,CAAAA,OAAjE,GAA2EP,MAAOC,CAAAA,EAAGC,CAAAA,IAAKC,CAAAA,0CAA1F;;",
+"sources":["shadow.js.shim.module$$promethean_os$opencode_cljs_client.js"],
+"sourcesContent":["goog.provide(\"shadow.js.shim.module$$promethean_os$opencode_cljs_client\");\ngoog.provide(\"module$shadow_js_shim_module$$promethean_os$opencode_cljs_client\");\nshadow.js.shim.module$$promethean_os$opencode_cljs_client = shadow.js.nativeProvides[\"@promethean-os/opencode-cljs-client\"] = require(\"@promethean-os/opencode-cljs-client\");\nmodule$shadow_js_shim_module$$promethean_os$opencode_cljs_client.default = shadow.js.shim.module$$promethean_os$opencode_cljs_client;\n"],
+"names":["goog","provide","shadow","js","shim","module$$promethean_os$opencode_cljs_client","nativeProvides","require","module$shadow_js_shim_module$$promethean_os$opencode_cljs_client","default"]
+}

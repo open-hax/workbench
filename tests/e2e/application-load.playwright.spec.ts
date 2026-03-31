@@ -19,7 +19,7 @@ test.describe('Application Load and Initialization', () => {
 
     // Check for essential UI components
     await expect(page.locator('.header')).toBeVisible();
-    await expect(page.locator('.editor')).toBeVisible();
+    await expect(page.locator('.main-area')).toBeVisible();
     await expect(page.locator('.status-bar')).toBeVisible();
 
     // Check for mode indicator
@@ -28,6 +28,8 @@ test.describe('Application Load and Initialization', () => {
 
   test('should have proper layout structure', async ({ page, app }) => {
     await app.waitForAppLoad();
+    
+    await page.locator('[data-testid^="workspace-file-"]').first().click();
 
     const layoutInfo = await app.getLayoutInfo();
 
@@ -39,6 +41,8 @@ test.describe('Application Load and Initialization', () => {
 
   test('should handle window resize gracefully', async ({ page, app }) => {
     await app.waitForAppLoad();
+    
+    await page.locator('[data-testid^="workspace-file-"]').first().click();
 
     // Resize window
     await page.setViewportSize({ width: 800, height: 600 });

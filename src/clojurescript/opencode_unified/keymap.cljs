@@ -74,7 +74,7 @@
                                                        "a" {:handler #(evil/append-after-cursor)}
                                                        "o" {:handler #(evil/open-line-below)}
                                                        "O" {:handler #(evil/open-line-above)}
-                                                       "dd" {:handler #(evil/delete-line)}
+                                                       "dd" {:handler #(evil/delete-current-line)}
                                                        "yy" {:handler #(evil/yank-line)}
                                                        "p" {:handler #(evil/paste-after)}
                                                        "P" {:handler #(evil/paste-before)}
@@ -104,16 +104,26 @@
 
 ;; Helper functions
 (defn normalize-key [event]
-  (let [key (.-key event)
+  (let [key (or (.-key event) "")
         ctrl? (.-ctrlKey event)
         alt? (.-altKey event)
         shift? (.-shiftKey event)
-        meta? (.-metaKey event)]
-    (cond-> key
-      ctrl? (str "Ctrl-")
-      alt? (str "Alt-")
-      shift? (str "Shift-")
-      meta? (str "Meta-"))))
+        meta? (.-metaKey event)
+        base-key (cond
+                   (= key " ") "SPC"
+                   (= key "Spacebar") "SPC"
+                   (= key "Escape") "ESC"
+                   :else (if (and (= 1 (count key)) (not shift?))
+                           (str/lower-case key)
+                           key))
+        modifiers (cond-> []
+                    ctrl? (conj "Ctrl")
+                    alt? (conj "Alt")
+                    shift? (conj "Shift")
+                    meta? (conj "Meta"))]
+    (if (seq modifiers)
+      (str (str/join "-" modifiers) "-" base-key)
+      base-key)))
 
 (defn clear-key-sequence []
   (reset! key-sequence [])
@@ -137,13 +147,12 @@
 
     ;; Try spacemacs bindings first (leader sequences)
     (if (and (>= (count key-sequence) 1)
-             (= (first key-sequence) "SPC"))
+              (= (first key-sequence) "SPC"))
       (let [path (rest key-sequence)]
-        (loop [bindings current-bindings
-               remaining path]
+        (loop [bindings {:bindings current-bindings}
+                remaining path]
           (if (empty? remaining)
-            (when (:handler bindings)
-              bindings)
+            bindings
             (let [key (first remaining)
                   next-binding (get-in bindings [:bindings key])]
               (if next-binding
@@ -160,7 +169,7 @@
   (clear-key-sequence)
   (state/hide-which-key!))
 
-(defn show-which-key [prefix]
+(defn show-which-key [_prefix]
   (state/show-which-key!)
   (set-key-timeout))
 
@@ -168,42 +177,51 @@
 (defn handle-key-down [event]
   (let [key (normalize-key event)
         evil-mode (state/get-evil-mode)
+        target (.-target event)
+        target-tag (some-> target .-tagName)
+        editable-target? (or (= target-tag "TEXTAREA")
+                             (= target-tag "INPUT")
+                             (boolean (some-> target .-isContentEditable)))
         current-sequence @key-sequence
-        new-sequence (conj current-sequence key)]
+        new-sequence (conj current-sequence key)
+        should-skip-modal-handling? editable-target?]
 
-    ;; Prevent default for special keys
-    (when (or (contains? special-keys key)
-              (contains? modifier-keys key)
-              (.-ctrlKey event)
-              (.-altKey event)
-              (.-metaKey event))
-      (.preventDefault event))
+    (when-not should-skip-modal-handling?
+      ;; Prevent browser-native editing/navigation for modal keys in editor.
+      (when (or (and editable-target? (not= evil-mode :insert))
+                (contains? special-keys key)
+                (contains? modifier-keys key)
+                (.-ctrlKey event)
+                (.-altKey event)
+                (.-metaKey event))
+        (.preventDefault event))
 
-    ;; Update key sequence
-    (reset! key-sequence new-sequence)
+      ;; Update key sequence
+      (reset! key-sequence new-sequence)
 
-    ;; Find binding
-    (if-let [binding (find-binding new-sequence evil-mode)]
-      (if (:handler binding)
-        ;; Execute immediately if handler exists
-        (execute-binding binding)
-        ;; Show which-key if there are sub-bindings
+      ;; Find binding
+      (if-let [binding (find-binding new-sequence evil-mode)]
+        (if (:handler binding)
+          ;; Execute immediately if handler exists
+          (execute-binding binding)
+          ;; Show which-key if there are sub-bindings
+          (do
+            (show-which-key new-sequence)
+            (set-key-timeout)))
+
+        ;; No binding found, clear sequence
         (do
-          (show-which-key new-sequence)
-          (set-key-timeout)))
+          (clear-key-sequence)
+          (state/hide-which-key!))))))
 
-      ;; No binding found, clear sequence
-      (do
-        (clear-key-sequence)
-        (state/hide-which-key!)))))
-
-(defn handle-key-up [event]
+(defn handle-key-up [_event]
   ;; Handle key release if needed
   )
 
 ;; Global keybindings (non-modal)
 (def global-keybindings
   {"Ctrl-p" {:handler #(buffers/command-palette)}
+   "Ctrl-s" {:handler #(buffers/save-current-buffer)}
    "Ctrl-Shift-p" {:handler #(buffers/show-command-palette)}
    "Ctrl-`" {:handler #(buffers/toggle-terminal)}
    "F11" {:handler #(buffers/toggle-fullscreen)}
@@ -256,4 +274,4 @@
   @key-sequence)
 
 (defn is-key-sequence-active? []
-  (not (empty? @key-sequence)))
+  (seq @key-sequence))

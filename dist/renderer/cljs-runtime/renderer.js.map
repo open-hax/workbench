@@ -1,0 +1,1 @@
+{"version":3,"sources":["renderer.cljs"],"mappings":";AAGA;;;gBAAA,hBAAMA;AAAN,AAGE,gHAAA,zGAACC","names":["renderer/init","cljs.core.println"],"sourcesContent":["(ns renderer\n  \"Electron renderer process integration\")\n\n(defn init\n  \"Initialize Electron renderer process\"\n  []\n  (println \"Electron renderer process initialized\"))"]}

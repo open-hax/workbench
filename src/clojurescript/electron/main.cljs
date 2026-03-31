@@ -156,10 +156,5 @@
                     (setup-menu-handlers!)
                     (setup-plugin-handlers!)
                     (start-plugin-watch!)
-                    (create-window)
-                    (.on app "activate" (fn [] (when (nil? @win*) (create-window)))))))
-
-(defn create-window
-  "Create main application window"
-  []
-  (println "Creating main window"))
+                     (create-window)
+                     (.on app "activate" (fn [] (when (nil? @win*) (create-window)))))))

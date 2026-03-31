@@ -1,1 +1,0 @@
-{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../src/typescript/electron/index.ts"],"names":[],"mappings":"AAAA;;GAEG;AAEH,sCAAsC;AACtC,MAAM,CAAC,MAAM,gBAAgB,GAAG,OAAO,CAAC;AAWxC,MAAM,CAAC,MAAM,qBAAqB,GAAmB;IACnD,KAAK,EAAE,IAAI;IACX,MAAM,EAAE,GAAG;IACX,WAAW,EAAE,IAAI;IACjB,eAAe,EAAE,KAAK;IACtB,gBAAgB,EAAE,IAAI;CACvB,CAAC"}
