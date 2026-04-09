@@ -81,8 +81,8 @@
   "author": "Promethean Team",
   "license": "GPL-3.0-only",
   "dependencies": {
-    "@promethean-os/openplanner-cljs-client": "file:../../../packages/openplanner-cljs-client",
-    "@promethean-os/opencode-cljs-client": "file:../../../packages/opencode-cljs-client",
+    "@promethean-os/openplanner-cljs-client": "workspace:*",
+    "@promethean-os/opencode-cljs-client": "workspace:*",
     "@opencode-ai/plugin": "^0.15.7",
     "@opencode-ai/sdk": "^0.15.7",
     "zod": "^3.25.76",
@@ -114,7 +114,8 @@
     "rimraf": "^5.0.5",
     "eslint": "^8.57.0",
     "prettier": "^3.2.5",
-    "@playwright/test": "^1.48.0"
+    "@playwright/test": "^1.48.0",
+    "@promethean-os/openplanner-cljs-client": "workspace:*"
   },
   "build": {
     "appId": "ai.promethean.opencode-unified",
