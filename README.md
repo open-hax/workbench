@@ -2,6 +2,9 @@
 
 Electron-based workbench with ClojureScript editor and OpenCode SDK integration.
 
+
+> Built with [GLM-5](https://z.ai) — part of the [z.ai](https://z.ai) startup ecosystem and the [Ussyverse](https://ussy.cloud).
+
 ## Overview
 
 This package provides the OpenCode Unified Workbench:
